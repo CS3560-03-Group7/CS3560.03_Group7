@@ -1,5 +1,6 @@
 package orderSystem;
 
 public class Item {
-public static updateAvailablity(){...} //update availability of an item
+//update availability of an item
+public static updateAvailablity(){...} 
 }

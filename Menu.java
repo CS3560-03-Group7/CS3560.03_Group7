@@ -37,5 +37,9 @@ public class Menu {
 	boolean itemAvailable(Item item) { 
 		return item.isAvailable;
 	}
+	
+	public Menu(ArrayList<Item> menuItems) { //This is the constructor for the Menu class
+		this.menuList = menuItems;
+	}
 
 }

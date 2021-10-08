@@ -1,17 +1,18 @@
 package orderSystem;
+import jaba.util.ArrayList;
 
 public class Order {
  String orderID;
  String trackingNumber;
  String orderTime;
- //Array Order List
+ ArrayList<Item> orderList = new ArrayList<Item();
   
   //Constructor takes in 4 parameters
-  public Order(String orderID, String trackingNumber, String orderTime /*ArrayList orderList*/){
+  public Order(String orderID, String trackingNumber, String orderTime, ArrayList<Item> orderList){
     this.orderID = orderID;
     this.trackingNumber = trackingNumber;
     this.orderItem = orderItem;
-    //this.orderList = orderList
+    this.orderList = orderList
   }
   
   //ability to edit an existing order by either adding/removing from the existing quantity. 

@@ -5,6 +5,6 @@ int itemID;
 string itemName;
 boolean isAvailable;
 double price;
-picture;
+string pictureID;
 int quantity;
 }

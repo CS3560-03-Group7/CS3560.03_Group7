@@ -5,7 +5,7 @@ public class Order {
  String orderID;
  String trackingNumber;
  String orderTime;
- ArrayList<Item> orderList = new ArrayList<Item();
+ ArrayList<Item> orderList = new ArrayList<Item>();
   
   //Constructor takes in 4 parameters
   public Order(String orderID, String trackingNumber, String orderTime, ArrayList<Item> orderList){

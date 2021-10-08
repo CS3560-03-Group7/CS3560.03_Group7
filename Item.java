@@ -2,9 +2,9 @@ package orderSystem;
 
 public class Item {
 int itemID;
-string itemName;
+String itemName;
 boolean isAvailable;
 double price;
-string pictureID;
+String pictureID;
 int quantity;
 }

@@ -17,5 +17,6 @@ int quantity;
     this.pictureID = pictureID;
     this.quantity = quantity;
   }
-  
+//update availability of an item
+public boolean updateAvailablity(){...} 
 }

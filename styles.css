@@ -1,6 +1,15 @@
 .root{
-	-fx-background-color: #707E99
+	-fx-background-color: #737779
 }
 
-
-
+/*
+background color - #737779 (classic grey)
+Primary Color - #545655 (grey)
+Seconday Color - #2b3233 (darker grey)
+text color - #9c9c9a (lightish gray)
+text color 2 - #eaeae8 (off white)
+text color 3 - #d3d7cf (greenish off white)
+accent color 1 - #91acce (light blue)
+accent color 2 - #5e85b7 (mid blue)
+accent color 3 - #3665a5 (darker blue)
+*/

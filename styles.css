@@ -2,6 +2,9 @@
 	-fx-background-color: #737779
 }
 
+@font-face{
+    -fx-text-font: src: url("future.ttf");
+}
 /*
 background color - #737779 (classic grey)
 Primary Color - #545655 (grey)
@@ -13,3 +16,40 @@ accent color 1 - #91acce (light blue)
 accent color 2 - #5e85b7 (mid blue)
 accent color 3 - #3665a5 (darker blue)
 */
+
+/*for the title at top; need to change font to desired font*/
+.label-Title{
+    -fx-text-fill: white;
+    -fx-font-size: 100;
+}
+
+.label-Subtitle{
+    -fx-text-fill: white;
+    -fx-font-size: 25;
+}
+
+.label-Items{
+    -fx-text-fill: #eaeae8;
+    -fx-font-size: 13
+}
+/*for the button named "completeOrder" */
+.button-completeOrder{
+    -fx-background-color: #737779;
+    -fx-text-fill: white;
+}
+.button-completeOrder: hover{
+    -fx-background-color: #458c5b;
+    -fx-text-fill: black;
+}
+
+/* for the button named "cancel"*/
+
+.button-cancel{
+    -fx-background-color: #737779;
+    -fx-text-fill: white;
+}
+.button-cancel:hover{
+    -fx-background-color: #ab3229;
+    -fx-text-fill: black;
+}
+

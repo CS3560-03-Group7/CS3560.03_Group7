@@ -25,6 +25,7 @@ DROP TABLE IF EXISTS `item`;
 CREATE TABLE `item` (
   `itemID` int NOT NULL AUTO_INCREMENT,
   `itemName` varchar(45) NOT NULL,
+  `category` varchar(45) NOT NULL,
   `isAvailable` tinyint NOT NULL,
   `price` double NOT NULL,
   `picture` linestring DEFAULT NULL,
@@ -38,7 +39,7 @@ CREATE TABLE `item` (
 
 LOCK TABLES `item` WRITE;
 /*!40000 ALTER TABLE `item` DISABLE KEYS */;
-INSERT INTO `item` VALUES (1,'Burger',0,9,NULL),(2,'Fries',0,2.5,NULL),(3,'Shake',0,4,NULL),(4,'Dino Nuggies',0,7,NULL),(5,'Burger Combo',0,10,NULL),(6,'Kids Meal',0,6,NULL),(7,'Mega Burger',0,11,NULL),(8,'Root Beer Float',0,6.5,NULL);
+INSERT INTO `item` VALUES (1,'Burger','E',0,9,NULL),(2,'Fries','S',0,2.5,NULL),(3,'Shake','D',0,4,NULL),(4,'Dino Nuggies','E',0,7,NULL),(5,'Burger Combo','C',0,10,NULL),(6,'Kids Meal','C',0,6,NULL),(7,'Mega Burger','E',0,11,NULL),(8,'Root Beer Float','D',0,6.5,NULL);
 /*!40000 ALTER TABLE `item` ENABLE KEYS */;
 UNLOCK TABLES;
 /*!40103 SET TIME_ZONE=@OLD_TIME_ZONE */;
@@ -51,4 +52,4 @@ UNLOCK TABLES;
 /*!40101 SET COLLATION_CONNECTION=@OLD_COLLATION_CONNECTION */;
 /*!40111 SET SQL_NOTES=@OLD_SQL_NOTES */;
 
--- Dump completed on 2021-11-12  8:50:17
+-- Dump completed on 2021-11-19 13:24:31

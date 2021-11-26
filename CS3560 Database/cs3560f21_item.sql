@@ -28,9 +28,9 @@ CREATE TABLE `item` (
   `category` varchar(45) NOT NULL,
   `isAvailable` tinyint NOT NULL,
   `price` double NOT NULL,
-  `picture` linestring DEFAULT NULL,
+  `picture` varchar(45) DEFAULT NULL,
   PRIMARY KEY (`itemID`)
-) ENGINE=InnoDB AUTO_INCREMENT=9 DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_0900_ai_ci;
+) ENGINE=InnoDB AUTO_INCREMENT=12 DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_0900_ai_ci;
 /*!40101 SET character_set_client = @saved_cs_client */;
 
 --
@@ -52,4 +52,4 @@ UNLOCK TABLES;
 /*!40101 SET COLLATION_CONNECTION=@OLD_COLLATION_CONNECTION */;
 /*!40111 SET SQL_NOTES=@OLD_SQL_NOTES */;
 
--- Dump completed on 2021-11-19 13:24:31
+-- Dump completed on 2021-11-26 10:17:50

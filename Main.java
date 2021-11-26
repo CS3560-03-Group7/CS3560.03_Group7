@@ -20,10 +20,23 @@ import javafx.scene.image.Image;
 import javafx.scene.control.*;
 import javafx.scene.layout.*;
 
+import javax.sql.rowset.CachedRowSet;
+import java.io.File;
+import java.io.FileInputStream;
+import java.io.FileNotFoundException;
+import java.sql.Connection;
+import java.sql.DatabaseMetaData;
+import java.sql.DriverManager;
+import java.sql.ResultSet;
+import java.sql.SQLException;
+import java.sql.Statement;
+
 import java.util.LongSummaryStatistics;
 import java.util.function.Predicate;
 
 public class Main extends Application {
+    //connects to our database or we hope it does
+    SQLConnector sqlConn = new SQLConnector("jdbc:mysql://localhost:3306/cs3560f21", "root", "d4rkw01f");
     //side navigation images
     Image banner = new Image(getClass().getResource("banner1.png").toExternalForm());
     ImageView topBanner = new ImageView(banner);
@@ -50,12 +63,12 @@ public class Main extends Application {
 
     Label restaurantName = new Label("Burgerverse");
 
-    Item nuggets = new Item("F-000001", "Dino Nuggies", 7.99, "dinoNuggiesAreCool.jpg", 10 );
-    Item borg = new Item("F-00002", "Burgers", 6.95, "borgor.jpg", 0);
-    Item fry = new Item("F-00003", "French Fries", 4.50, "fritasYum.jpg", 0);
-    Item kMeal = new Item("C-00004", "Kids Meal", 8.50, "kidsMealOWO.jpeg", 0);
-    Item milkShake = new Item("D-00005", "Milkshake", 4.0, "milkyshakey.jpg", 0);
-    Item rbFloat = new Item("D-00006", "Rootbeer Float", 4.0, "rootbeerFloatin.jpg",0 );
+    Item nuggets = new Item(1);
+    Item borg = createItem("borgor.jpg", "Burger");
+    Item fry = createItem("fritasYum.jpg", "Fries");
+    Item kMeal = createItem("kidsMealOWO.jpeg", "Kids Meal");
+    Item milkShake = createItem("milkyshakey.jpg", "Shake");
+    Item rbFloat = createItem("rootbeerFloatin.jpg", "Root Beer Float" );
 
     Stage window;
     Scene updateMenuScene, addItemScene;
@@ -70,23 +83,17 @@ public class Main extends Application {
     TextField itemNameTF;
     TextField isAvailTF;
 
+    public Main() throws SQLException {
+    }
 
     @Override
     public void start(Stage primaryStage) {
-        Menu menu = new Menu();
-        menu.addToMenu(nuggets);
-        menu.addToMenu(borg);
-        menu.addToMenu(fry);
-        menu.addToMenu(kMeal);
-        menu.addToMenu(milkShake);
-        menu.addToMenu(rbFloat);
 
         window = primaryStage;
         //sets up stage to be built!
         window = new Stage();
         window.setTitle("Menu");
         window.setResizable(false);
-        window.setMaxWidth(950);
         window.setScene(getHomePage());
         window.show();
     }
@@ -119,17 +126,52 @@ public class Main extends Application {
         VBox centerNavPane = new VBox(title, items);
         centerNavPane.setAlignment(Pos.CENTER);
 
+        Menu menu = new Menu();
+        menu.addToMenu(nuggets);
+        menu.addToMenu(borg);
+        menu.addToMenu(fry);
+        menu.addToMenu(kMeal);
+        menu.addToMenu(milkShake);
+        menu.addToMenu(rbFloat);
+
         //center with items for food
         comboNav.setFitHeight(50);
         comboNav.setFitWidth(50);
         comboNav.setOnMouseClicked(mouseEvent -> {
-            //need database for this bad boy so we can get the items with their itemID
-            System.out.println("Combo Nav Clicked");
+            //query for itemID's
+            //if they have a "C" in their string, we add item into list, else, we move to next item
+            //display combo nav
+            System.out.println("Combo Nav clicked");
         });
         drinkNav.setFitWidth(50);
         drinkNav.setFitHeight(50);
         drinkNav.setOnMouseClicked(mouseEvent -> {
             System.out.println("Drink Nav Clicked");
+            int row = 0;
+            int column = 0;
+            centerNavPane.getChildren().removeAll(title,items);
+            for(int i =0; i<menu.getMenuSize(); i++){
+                if((i+1)%3 == 0){
+                    row++;
+                    column = 0;
+                }
+                items.getChildren().remove(column++, row);
+            }
+            row= 0;
+            column = 0;
+            for(int i =0 ; i<menu.getMenuSize(); i++){
+                if(menu.getItemOnMenu(i).getCategory().equalsIgnoreCase("D")) {
+                    if(column%3 ==0){
+                        //we start a new row
+                        row++;
+                        column= 0;
+                        items.add(getMenuItem(menu.getItemOnMenu(i)), column, row);
+                    }
+                    items.add(getMenuItem(menu.getItemOnMenu(i)), column++, row);
+                }
+            }
+            title.setText("Drinks");
+            centerNavPane.getChildren().addAll(title, items);
         });
         kmNav.setFitHeight(50);
         kmNav.setFitWidth(50);
@@ -175,6 +217,7 @@ public class Main extends Application {
            window.setTitle("UPDATE MENU");
            window.setScene(updateMenu());
         });
+
         HBox updates = new HBox(updateMenu);
         updates.setAlignment(Pos.TOP_RIGHT);
         restaurantName.getStyleClass().add("label-Title");
@@ -188,10 +231,6 @@ public class Main extends Application {
         cart.setPadding(new Insets(20,20,20,20));
         cart.getStyleClass().add("label-Subtitle");
 
-        getMenuItem(nuggets).setOnMouseClicked(mouseEvent -> {
-
-        });
-
         //whole menu setup -- visual of the main menu for customers
         BorderPane menuSetup = new BorderPane();
         menuSetup.setCenter(centerNavPane);
@@ -199,11 +238,6 @@ public class Main extends Application {
         menuSetup.setTop(topPane);
         menuSetup.setRight(cart);
         menuSetup.setBottom(bottomNavPane);
-
-        getItemPage(nuggets).setOnMouseClicked(mouseEvent -> {
-            window.setTitle(nuggets.getItemName());
-            window.setScene(getItemPage(nuggets));
-        });
 
         Scene scene = new Scene(menuSetup);
         scene.getStylesheets().add(getClass().getResource("styles.css").toExternalForm());
@@ -236,17 +270,22 @@ public class Main extends Application {
         itemOnMenu.setOnMouseClicked(mouseEvent -> {
              window.setTitle(item.getItemName());
              window.setScene(getItemPage(item));
+             window.setWidth(640);
+             window.setHeight(640);
         });
 
         return itemOnMenu;
     }
 
     public Scene getItemPage(Item item){
+        ImageView decor = new ImageView(banner);
+        Label restName = new Label("Burgerverse");
+        restName.getStyleClass().add("label-Title");
 
         Image itemImage=  new Image(getClass().getResource(item.getPictureID()).toExternalForm());
         ImageView itemPic = new ImageView(itemImage);
-        itemPic.setFitWidth(300);
-        itemPic.setPreserveRatio(true);
+        itemPic.setFitWidth(200);
+        itemPic.setFitHeight(200);
 
         Label iName = new Label(item.getItemName());
         iName.getStyleClass().add("label-Subtitle");
@@ -257,15 +296,23 @@ public class Main extends Application {
         Label quantityLabel = new Label("1");
         item.setQuantity(1);
 
+        //allows customer to return to home page
         Button cancel = new Button("cancel");
         cancel.setOnAction(actionEvent -> {
-            getHomePage();
+            window.setScene(getHomePage());
+            window.setWidth(640);
+            window.setHeight(850);
         });
+        cancel.getStyleClass().add("button-cancel");
+
+        //allows user to add to the quantity of an item
         Button add = new Button("+");
         add.setOnAction(actionEvent -> {
             item.incrementQuantity();
             quantityLabel.setText(String.valueOf(item.getQuantity()));
         });
+        add.getStyleClass().add("button-AddToCart");
+        //allows user to subtract the amount of an item they want
         Button subtract = new Button("-");
         subtract.setOnAction(actionEvent ->{
             if(item.getQuantity() == 0)
@@ -275,8 +322,10 @@ public class Main extends Application {
                 quantityLabel.setText(String.valueOf(item.getQuantity()));
             }
         });
+        subtract.getStyleClass().add("button-cancel");
         quantityLabel.getStyleClass().add("label-Items");
 
+        //adds the item with specified quantity into the cart
         Button addItemToCart = new Button("Add to Cart");
         addItemToCart.setOnAction(actionEvent -> {
             if(item.getQuantity() == 0)
@@ -284,11 +333,16 @@ public class Main extends Application {
             else {
                 System.out.println(item.getItemName() + " x" + item.getQuantity() + " has been added to your cart");
                 window.setScene(getHomePage());
+                window.setWidth(640);
+                window.setHeight(850);
             }
         });
+        addItemToCart.getStyleClass().add("button-AddToCart");
 
+        //setup for the scene to be returnd eventually
         HBox cancelTop = new HBox(cancel);
         cancelTop.setAlignment(Pos.TOP_LEFT);
+        cancelTop.setPadding(new Insets(5,5,5,5));
         HBox itemTitle = new HBox( iName);
         itemTitle.setAlignment(Pos.CENTER);
         VBox topTitle = new VBox(cancelTop, itemTitle);
@@ -299,10 +353,13 @@ public class Main extends Application {
         quantityControl.setSpacing(10);
         HBox addingToCart = new HBox(addItemToCart);
         addingToCart.setAlignment(Pos.BOTTOM_RIGHT);
-        VBox itemPane = new VBox(topTitle, itemPic, quantityControl, iPrice, addingToCart);
+        addingToCart.setPadding(new Insets(5,5,5,5));
+        VBox itemPane = new VBox(restName, decor, cancelTop,itemPic, quantityControl, iPrice, addingToCart);
         itemPane.setAlignment(Pos.CENTER);
 
+        //scene to be  returned
         Scene itemScene = new Scene(itemPane);
+        itemScene.getStylesheets().add(getClass().getResource("styles.css").toExternalForm());
 
         return itemScene;
     }
@@ -343,7 +400,6 @@ public class Main extends Application {
         vbox.setPadding(new Insets(10, 0, 0, 10));
         vbox.getChildren().addAll(updateLabel, clickSearch, addItemBtn);
         vbox.setAlignment(Pos.CENTER);
-
 
         BorderPane updateMenuPane = new BorderPane();
         updateMenuPane.setTop(vbox);
@@ -473,18 +529,6 @@ public class Main extends Application {
         return addItemScene;
     }
 
-//    public Connection MySqlConnection() {
-//        try {
-//            Class.forName("com.mysql.jdbc.Driver");
-//            conn = DriverManager.getConnection("jdbc:mysql://localHost:3306/cs3560f21", "root", "root");
-//            System.out.println("MySQL connection Successful");
-//            return conn;
-//        } catch (Exception e) {
-//            System.out.println("MySQL connection Failed");
-//            return null;
-//        }
-//    }
-
     //maybe add the different scenes here as methods
     // then have main be a sorter of what happens
 
@@ -593,16 +637,23 @@ public class Main extends Application {
     //doesn't work yet
     public ObservableList<Item> getProduct() {
         ObservableList<Item> products = FXCollections.observableArrayList();
-        products.add(nuggets);
-        products.add(borg);
-        products.add(fry);
-        products.add(kMeal);
-        products.add(rbFloat);
-        products.add(milkShake);
+//        products.add(nuggets);
+//        products.add(borg);
+//        products.add(fry);
+//        products.add(kMeal);
+//        products.add(rbFloat);
+//        products.add(milkShake);
         return products;
     }
 
-    public static void main(String[] args) {
+    private Item createItem(String picture, String itemNameInDB) throws SQLException {
+        CachedRowSet r = sqlConn.query("SELECT * FROM item WHERE itemName = \"" + itemNameInDB +"\"");
+        r.next();
+        Item i = new Item(1);
+        return i;
+    }
+
+    public static void main(String[] args) throws SQLException {
         launch(args);
     }
 

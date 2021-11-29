@@ -33,57 +33,6 @@ import javax.sql.rowset.CachedRowSet;
 
 public class Cart extends Application{
     
-    class QuantityColumn{
-        private Button removeBtn = new Button("-");
-        private Button addBtn = new Button("+");
-        private int quantity;        
-        private HBox colDisplay = new HBox();
-        Label quantityLbl;
-        
-        public QuantityColumn(int quantity){
-            this.quantity = quantity;
-            quantityLbl = new Label(Integer.toString(quantity));
-            
-            colDisplay.setAlignment(Pos.BASELINE_CENTER);
-            colDisplay.setSpacing(10);
-            colDisplay.getChildren().addAll(removeBtn,quantityLbl,addBtn);
-            
-            addBtn.setOnAction(e-> {
-                add();
-            });
-            
-            removeBtn.setOnAction(e -> {
-                remove();
-            });
-        }
-        
-        private void add(){
-            this.quantity += 1;
-            this.quantityLbl.setText(Integer.toString(this.quantity));
-            //int index = tCols.indexOf(this);
-            //System.out.println(index);
-            //tCols.get(index).updatePrice(this.quantity);
-            table.refresh();
-        }
-        
-        private void remove(){
-            this.quantity -= 1;
-            this.quantityLbl.setText(Integer.toString(this.quantity));
-           // int index = tCols.indexOf();
-            //System.out.println(index);
-            //tCols.get(index).updatePrice(this.quantity);
-            table.refresh();
-        }
-        
-        public HBox getColDisplay(){
-            return colDisplay;
-        }
-        
-        public int getQuantity(){
-            return this.quantity;
-        }
-    }
-    
     ObservableList<Wrapper> tCols = FXCollections.observableArrayList();
     private double total = 0;
     private Label totalLbl;
@@ -100,6 +49,7 @@ public class Cart extends Application{
         double originalPrice;
         private String itemName;
         private double price;
+        private Button deleteItemBtn = new Button("🗑");
         
         public Wrapper(int itemID, String itemName, int q, double price){
             this.itemID = itemID;
@@ -129,6 +79,20 @@ public class Cart extends Application{
                     Logger.getLogger(Cart.class.getName()).log(Level.SEVERE, null, ex);
                 }
             });
+            //-fx-padding:0 6 0 6;
+            String idleStyle = "-fx-background-color: #ff4343;-fx-text-fill: white;-fx-font-size:18;-fx-padding:0 6 0 6;";
+            String hoverStyle = "-fx-background-color: #ff5959;-fx-text-fill: white;-fx-font-size:18;-fx-padding:0 6 0 6;";
+            
+            deleteItemBtn.setStyle(idleStyle);
+            deleteItemBtn.setOnMouseEntered(e -> deleteItemBtn.setStyle(hoverStyle));
+            deleteItemBtn.setOnMouseExited(e -> deleteItemBtn.setStyle(idleStyle));
+            deleteItemBtn.setOnAction(e -> {
+                try {
+                    deleteItem();
+                } catch (SQLException ex) {
+                    Logger.getLogger(Cart.class.getName()).log(Level.SEVERE, null, ex);
+                }
+            });
             
             if(this.quantity <= 1)
                 this.removeBtn.setDisable(true);
@@ -153,6 +117,10 @@ public class Cart extends Application{
             return this.quantity;
         }
         
+        public Button getDeleteItemBtn(){
+            return this.deleteItemBtn;
+        }
+        
         private void add() throws SQLException{
             this.quantity += 1;
             this.quantityLbl.setText(Integer.toString(this.quantity));
@@ -164,7 +132,7 @@ public class Cart extends Application{
                 this.removeBtn.setDisable(false);
             
             String query = "UPDATE orderitem SET quantity = " + Integer.toString(this.quantity) + " WHERE itemID = " + Integer.toString(this.itemID) +";";
-            System.out.println(query);
+            //System.out.println(query);
             s.update(query);
         }
         
@@ -179,28 +147,23 @@ public class Cart extends Application{
                 this.removeBtn.setDisable(true);
             
             String query = "UPDATE orderitem SET quantity = " + Integer.toString(this.quantity) + " WHERE itemID = " + Integer.toString(this.itemID) +";";
-            System.out.println(query);
+            //System.out.println(query);
             s.update(query);
         }
         
-        public void updatePrice(int quantity){
-            if (quantity > this.quantity){
-                this.price += originalPrice;
-            }
-            else if (quantity < this.quantity)
-                this.price -= originalPrice;
+        public void deleteItem() throws SQLException{
+            total -= this.price;
+            totalLbl.setText("Total: $" + df.format(total));
+            String query = "DELETE FROM orderitem WHERE itemID = " + Integer.toString(this.itemID);
+            s.update(query);
+            int index = tCols.indexOf(this);
+            tCols.remove(index);
         }
     }
 
     SQLConnector s;
 
     private TableView<Wrapper> table = new TableView();
-    
-/*
-    public static void main(String[] args) {
-        launch(args);
-    }
-*/
     
     public ObservableList<OrderItem> getOrderItems(SQLConnector s) throws SQLException{
         ObservableList<OrderItem> orderItems = FXCollections.observableArrayList();
@@ -216,58 +179,10 @@ public class Cart extends Application{
  
     @Override
     public void start(Stage stage) throws SQLException {
-   
-        //Scene scene = new Scene(new Group());
-        //stage.setTitle("Cart");
-        //stage.setWidth(640);
-        //stage.setHeight(850);
-        /*
-        //final Label label = new Label("Address Book");
-        //label.setFont(new Font("Arial", 20));
- 
-        table.setEditable(false);
- 
-        
-        CachedRowSet results = s.query("SELECT * FROM orderitem");
-        ArrayList<OrderItem> items = new ArrayList<OrderItem>();
-        while(results.next()){
-            OrderItem temp = new OrderItem(results.getInt("itemID"), results.getInt("quantity"), s);
-            items.add(temp);
-        }
-        
-        //public ObservableList<OrderItem> orderItems = FXCollections.observableArrayList();
-        TableColumn<OrderItem, String> itemCol = new TableColumn<>("Item Name");
-        itemCol.setMinWidth(200);
-        itemCol.setCellValueFactory(new PropertyValueFactory<>("itemName"));
-        
-        TableColumn<OrderItem, Integer> quantityCol = new TableColumn<>("Quantity");
-        quantityCol.setMinWidth(50);
-        quantityCol.setCellValueFactory(new PropertyValueFactory<>("quantity"));
-        
-        TableColumn<OrderItem, Double> priceCol = new TableColumn<>("Price");
-        priceCol.setMinWidth(50);
-        priceCol.setCellValueFactory(new PropertyValueFactory<>("price"));
-        
-        
-        table.setColumnResizePolicy(TableView.CONSTRAINED_RESIZE_POLICY);
-        table.setItems(getOrderItems(s));
-        table.getColumns().addAll(itemCol, quantityCol, priceCol);
-        
-        Button backBtn = new Button("Back");
-        
-        final VBox vbox = new VBox();
-        vbox.setSpacing(5);
-        vbox.setPadding(new Insets(10, 0, 0, 10));
-        vbox.getChildren().addAll(table);
- 
-        ((Group) scene.getRoot()).getChildren().addAll(vbox);
- 
-        stage.setScene(scene);
-        stage.show();
-        */
+       
     }
     
-    public Scene displayCart() throws SQLException{
+    public Scene displayCart(Stage stage) throws SQLException{
  
         //final Label label = new Label("Address Book");
         //label.setFont(new Font("Arial", 20));
@@ -296,16 +211,8 @@ public class Cart extends Application{
         itemCol.setMinWidth(200);
         itemCol.setCellValueFactory(new PropertyValueFactory<>("itemName"));
         
-        /*
-        TableColumn<OrderItem, Integer> quantityCol = new TableColumn<>("Quantity");
-        quantityCol.setMinWidth(50);
-        quantityCol.setStyle("-fx-alignment: CENTER");
-        quantityCol.setCellValueFactory(new PropertyValueFactory<>("quantity"));
-        */
-        
         TableColumn<Wrapper, HBox> quantityCol = new TableColumn<>("Quantity");
         quantityCol.setMinWidth(50);
-        //quantityCol.setStyle("-fx-alignment: CENTER");
         quantityCol.setCellValueFactory(new PropertyValueFactory<>("colDisplay"));
         
         TableColumn<Wrapper, Label> priceCol = new TableColumn<>("Price");
@@ -313,22 +220,22 @@ public class Cart extends Application{
         priceCol.setStyle("-fx-alignment: CENTER");
         priceCol.setCellValueFactory(new PropertyValueFactory<>("priceLbl"));
         
+        TableColumn<Wrapper, Button> delCol = new TableColumn<>("");
+        delCol.setMinWidth(50);
+        delCol.setMaxWidth(50);
+        delCol.setStyle("-fx-alignment: CENTER");
+        delCol.setCellValueFactory(new PropertyValueFactory<>("deleteItemBtn"));
+        
         
         table.setColumnResizePolicy(TableView.CONSTRAINED_RESIZE_POLICY);
-        //table.setItems(getOrderItems(s));
         table.setItems(tCols);
-        table.getColumns().addAll(itemCol, quantityCol, priceCol);
+        table.getColumns().addAll(itemCol, quantityCol, priceCol,delCol);
         
         Button backBtn = new Button("Back");
         backBtn.setOnAction(e -> {
-            //TODO return to home page
+            //stage.setTitle("Home");
+            //stage.setScene(Main.getHomePage());
         });
-        
-        /*
-        for(int i = 0; i < items.size(); i++){
-            total = total + items.get(i).getPrice();
-        }
-        */
         
         for(Wrapper item : table.getItems())
             total = total + item.getPrice();

@@ -11,7 +11,11 @@ package com.order.main;
 
 import java.sql.SQLException;
 import java.text.DecimalFormat;
+import java.time.LocalDateTime;
+import java.time.format.DateTimeFormatter;
 import java.util.ArrayList;
+import java.util.Random;
+import java.util.concurrent.ThreadLocalRandom;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 import javafx.application.Application;
@@ -28,15 +32,24 @@ import javafx.scene.control.cell.PropertyValueFactory;
 import javafx.scene.layout.BorderPane;
 import javafx.scene.layout.HBox;
 import javafx.scene.layout.VBox;
+import javafx.scene.text.Font;
+import javafx.scene.text.TextAlignment;
+import javafx.stage.Modality;
+import javafx.stage.Popup;
 import javafx.stage.Stage;
 import javax.sql.rowset.CachedRowSet;
+import java.sql.Date;
 
 public class Cart extends Application{
     
+    private int cartID;
     ObservableList<Wrapper> tCols = FXCollections.observableArrayList();
     private double total = 0;
     private Label totalLbl;
     private DecimalFormat df = new DecimalFormat("#.00");
+    private ArrayList<OrderItem> items = new ArrayList<>();
+    private TableView<Wrapper> table = new TableView();
+    SQLConnector s;
     
     public class Wrapper{        
         private int itemID;
@@ -160,10 +173,6 @@ public class Cart extends Application{
             tCols.remove(index);
         }
     }
-
-    SQLConnector s;
-
-    private TableView<Wrapper> table = new TableView();
     
     public ObservableList<OrderItem> getOrderItems(SQLConnector s) throws SQLException{
         ObservableList<OrderItem> orderItems = FXCollections.observableArrayList();
@@ -176,6 +185,10 @@ public class Cart extends Application{
         
         return orderItems;
     }
+    
+    public ArrayList getCartItems(){
+        return items;
+    }
  
     @Override
     public void start(Stage stage) throws SQLException {
@@ -184,14 +197,11 @@ public class Cart extends Application{
     
     public Scene displayCart(Stage stage) throws SQLException{
  
-        //final Label label = new Label("Address Book");
-        //label.setFont(new Font("Arial", 20));
- 
         table.setEditable(false);
  
         //grabbing the orderitems from the database
         CachedRowSet results = s.query("SELECT * FROM orderitem");
-        ArrayList<OrderItem> items = new ArrayList<>();
+        
         while(results.next()){
             OrderItem temp = new OrderItem(results.getInt("itemID"), results.getInt("quantity"), s);
             items.add(temp);
@@ -233,8 +243,9 @@ public class Cart extends Application{
         
         Button backBtn = new Button("Back");
         backBtn.setOnAction(e -> {
-            //stage.setTitle("Home");
-            //stage.setScene(Main.getHomePage());
+            Main testing = new Main();
+            Scene home = testing.goHome(stage);
+            stage.setScene(home);
         });
         
         for(Wrapper item : table.getItems())
@@ -242,7 +253,74 @@ public class Cart extends Application{
         
         String totalOut = "Total: $" + df.format(total);
         totalLbl = new Label(totalOut);
+        
+       
+        
         Button checkoutBtn = new Button("Checkout");
+        
+        Label paymentLbl = new Label("Please insert payment method");
+        paymentLbl.setFont(new Font("Arial", 16));
+        paymentLbl.setTextAlignment(TextAlignment.CENTER);
+        Label orderTimeLbl = new Label();
+        orderTimeLbl.setVisible(false);
+        Button payBtn = new Button("Complete payment"); 
+        DateTimeFormatter dateFormat = DateTimeFormatter.ofPattern("dd/MM/yyy HH:mm:ss");
+        
+        Stage popupwindow = new Stage();
+        popupwindow.initModality(Modality.APPLICATION_MODAL);
+        popupwindow.setTitle("Checkout");
+        int orderNum = ThreadLocalRandom.current().nextInt(1,1000);
+        
+        payBtn.setOnAction(e-> {
+           if(payBtn.getText() == "Complete payment"){
+               try {
+                   LocalDateTime orderTime = LocalDateTime.now();
+                   paymentLbl.setText("Thank you for your order! \nYour order number is \n" + orderNum);
+                   orderTimeLbl.setText(dateFormat.format(orderTime));
+                   orderTimeLbl.setVisible(true);
+                   payBtn.setText("Ok");
+                   
+ /* **************** REMEMBER TO DELETE THIS CART ID DECLARATION UNLESS YOU ACTUALLY WANT TO BREAK EVERYTHING ************************************ */
+ 
+                   //this.cartID = 1;
+                   
+ /* **************************** FOR THE LOVE OF GOD, REMEMBER TO DELETE THIS CART ID DECLARATION ************************************************ */
+ 
+                   String query = "UPDATE cart SET isPaid = 0 WHERE cartID = " + Integer.toString(this.cartID) + ";";
+                   s.update(query);
+                   
+                   query = "INSERT INTO `order`(orderCartID,trackingNum, orderTime) VALUES (" + Integer.toString(this.cartID) + ", " + Integer.toString(orderNum) + ", \"" + dateFormat.format(orderTime) + "\");";
+                   s.update(query);
+                   
+                   Order newOrder = new Order(s, this.cartID, orderNum, orderTime);
+                   newOrder.setOrderList(items);
+                   newOrder.sendOrderToKitchen();
+                   
+               } catch (SQLException ex) {
+                   Logger.getLogger(Cart.class.getName()).log(Level.SEVERE, null, ex);
+               }
+           }
+           else{
+               popupwindow.close();
+               stage.setTitle("Home");
+               Main testing = new Main();
+               Scene home = testing.goHome(stage);
+               stage.setScene(home);
+           }
+        });
+        
+        VBox checkoutBox = new VBox();
+        checkoutBox.setSpacing(20);
+        checkoutBox.setPadding(new Insets(10, 0, 10, 10));
+        checkoutBox.setAlignment(Pos.CENTER);
+        checkoutBox.getChildren().addAll(paymentLbl,orderTimeLbl, payBtn);
+        
+        Scene checkoutScene = new Scene(checkoutBox,300,250);
+        
+        checkoutBtn.setOnAction(e -> {
+            popupwindow.setScene(checkoutScene);
+            popupwindow.showAndWait();
+        });
         
         final VBox vbox = new VBox();
         vbox.setSpacing(5);
@@ -265,7 +343,11 @@ public class Cart extends Application{
         return cartScene;
     }
     
-    public Cart(SQLConnector s){
+    public Cart(SQLConnector s) throws SQLException{
        this.s = s;
+       
+       CachedRowSet results = s.query("SELECT cartID FROM cart WHERE cartID=(SELECT max(cartID) FROM cart);");
+       results.next();
+       this.cartID = results.getInt("cartID");
     }
 }

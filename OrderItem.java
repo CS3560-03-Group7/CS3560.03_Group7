@@ -16,11 +16,12 @@ public class OrderItem {
     private int quantity;
     private String itemName;
     private double price;
+    private String size;
     
     public OrderItem(int itemID, int quantity, SQLConnector s) throws SQLException {
         this.itemID = itemID;
         this.quantity = quantity;
-        
+        this.size = "";
         String query = "SELECT * FROM item WHERE itemID = " + Integer.toString(this.itemID);
         
         CachedRowSet results = s.query(query);
@@ -28,6 +29,41 @@ public class OrderItem {
         this.itemName = results.getString("itemname");
         this.price = results.getDouble("price") * this.quantity;
         
+        results = s.query("SELECT cartID FROM cart WHERE cartID=(SELECT max(cartID) FROM cart);");
+        results.next();
+        this.cartID = results.getInt("cartID");
+    }
+    
+    public OrderItem(int itemID, int quantity, String size, SQLConnector s) throws SQLException {
+        this.itemID = itemID;
+        this.quantity = quantity;
+        this.size = size;
+        String query = "SELECT * FROM item WHERE itemID = " + Integer.toString(this.itemID);
+        
+        CachedRowSet results = s.query(query);
+        results.next();
+        String tempName = results.getString("itemname");
+        double tempPrice = results.getDouble("price");//base item price
+        switch(this.size){
+            case "Small": case "small": case "S": case "s":
+                tempName = "Small " + tempName;
+                tempPrice = tempPrice - 1;
+                break;
+            case "Medium": case "medium": case "M": case "m":
+                tempName = "Medium " + tempName;
+                break;
+            case "Large": case "large": case "L": case "l":
+                tempName = "Large " + tempName;
+                tempPrice = tempPrice + 1;
+                break;
+        }
+        
+        this.itemName = tempName;
+        this.price = tempPrice * this.quantity;
+        
+        results = s.query("SELECT cartID FROM cart WHERE cartID=(SELECT max(cartID) FROM cart);");
+        results.next();
+        this.cartID = results.getInt("cartID");
     }
     
     public int getItemID(){

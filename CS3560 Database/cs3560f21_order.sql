@@ -25,7 +25,10 @@ DROP TABLE IF EXISTS `order`;
 CREATE TABLE `order` (
   `orderID` int NOT NULL AUTO_INCREMENT,
   `trackingNum` int NOT NULL,
-  PRIMARY KEY (`orderID`)
+  `orderCartID` int NOT NULL,
+  PRIMARY KEY (`orderID`,`orderCartID`),
+  KEY `orderCartID` (`orderCartID`),
+  CONSTRAINT `order_ibfk_1` FOREIGN KEY (`orderCartID`) REFERENCES `cart` (`cartID`)
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_0900_ai_ci;
 /*!40101 SET character_set_client = @saved_cs_client */;
 
@@ -47,4 +50,4 @@ UNLOCK TABLES;
 /*!40101 SET COLLATION_CONNECTION=@OLD_COLLATION_CONNECTION */;
 /*!40111 SET SQL_NOTES=@OLD_SQL_NOTES */;
 
--- Dump completed on 2021-11-26 10:17:50
+-- Dump completed on 2021-11-29 18:21:24

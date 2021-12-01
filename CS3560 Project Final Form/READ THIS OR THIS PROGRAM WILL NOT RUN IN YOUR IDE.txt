@@ -1,0 +1,9 @@
+For this project to run in your IDE, you will need to change the following variables in their respective classes:
+
+MainMenu -- line 59; change filepath to the filepath where you've stored the images used in the program
+
+Welcome -- line 95, 96, and 97; change url, username, and password to the correct url, username, and password for your local server instance
+
+UpdateMenu -- line 362, update url, username, and password
+
+Item -- line 33, update url, username, and password

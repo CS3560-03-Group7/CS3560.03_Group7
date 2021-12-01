@@ -40,7 +40,7 @@ CREATE TABLE `item` (
 
 LOCK TABLES `item` WRITE;
 /*!40000 ALTER TABLE `item` DISABLE KEYS */;
-INSERT INTO `item` VALUES (1,'Burger','E',1,0,9,NULL),(2,'Fries','S',0,0,2.5,NULL),(3,'Shake','D',0,0,4,NULL),(4,'Dino Nuggies','E',1,0,7,NULL),(5,'Burger Combo','C',0,0,10,NULL),(6,'Kids Meal','C',0,0,6,NULL),(7,'Mega Burger','E',1,0,11,NULL),(8,'Root Beer Float','D',0,0,6.5,NULL);
+INSERT INTO `item` VALUES (1,'Burger','E',1,0,9,'borgor.jpg'),(2,'Fries','S',0,0,2.5,'fritasYum.jpg'),(3,'Shake','D',0,0,4,'milkyshakey.jpg'),(4,'Dino Nuggies','E',1,0,7,'dinoNuggiesAreCool.jpg'),(5,'Burger Combo','C',0,0,10,'BurgerCombo.jpg'),(6,'Kids Meal','C',0,0,6,'kidsMealOWO.jpg'),(7,'Mega Burger','E',1,0,11,'theshameburger.jpg'),(8,'Root Beer Float','D',0,0,6.5,'rootbeerFloatin.jpg');
 /*!40000 ALTER TABLE `item` ENABLE KEYS */;
 UNLOCK TABLES;
 /*!40103 SET TIME_ZONE=@OLD_TIME_ZONE */;
@@ -53,4 +53,4 @@ UNLOCK TABLES;
 /*!40101 SET COLLATION_CONNECTION=@OLD_COLLATION_CONNECTION */;
 /*!40111 SET SQL_NOTES=@OLD_SQL_NOTES */;
 
--- Dump completed on 2021-11-30 14:02:58
+-- Dump completed on 2021-11-30 18:17:16

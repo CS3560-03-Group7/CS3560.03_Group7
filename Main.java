@@ -1,19 +1,14 @@
 package com.example.ordertime;
 
 import javafx.application.Application;
-import javafx.beans.value.ChangeListener;
-import javafx.beans.value.ObservableValue;
 import javafx.collections.FXCollections;
 import javafx.collections.ObservableList;
 import javafx.collections.transformation.FilteredList;
 import javafx.collections.transformation.SortedList;
-import javafx.event.ActionEvent;
-import javafx.event.EventHandler;
 import javafx.geometry.Insets;
 import javafx.geometry.Pos;
 import javafx.scene.Scene;
 import javafx.scene.control.cell.PropertyValueFactory;
-import javafx.scene.text.Font;
 import javafx.stage.Stage;
 import javafx.scene.image.ImageView;
 import javafx.scene.image.Image;
@@ -21,17 +16,7 @@ import javafx.scene.control.*;
 import javafx.scene.layout.*;
 
 import javax.sql.rowset.CachedRowSet;
-import java.io.File;
-import java.io.FileInputStream;
-import java.io.FileNotFoundException;
-import java.sql.Connection;
-import java.sql.DatabaseMetaData;
-import java.sql.DriverManager;
-import java.sql.ResultSet;
-import java.sql.SQLException;
-import java.sql.Statement;
-
-import java.util.LongSummaryStatistics;
+import java.sql.*;
 import java.util.function.Predicate;
 
 public class Main extends Application {
@@ -41,21 +26,6 @@ public class Main extends Application {
     Image banner = new Image(getClass().getResource("banner1.png").toExternalForm());
     ImageView topBanner = new ImageView(banner);
 
-    Image combo = new Image(getClass().getResource("comboNav.png").toExternalForm());
-    ImageView comboNav = new ImageView(combo);
-
-    Image drink = new Image(getClass().getResource("drinkNav.png").toExternalForm());
-    ImageView drinkNav = new ImageView(drink);
-
-    Image kidsMeal = new Image(getClass().getResource("kmNav.png").toExternalForm());
-    ImageView kmNav = new ImageView(kidsMeal);
-
-    Image meal = new Image(getClass().getResource("mealNav.png").toExternalForm());
-    ImageView mealNav = new ImageView(meal);
-
-    Image sides = new Image(getClass().getResource("sidesNav.png").toExternalForm());
-    ImageView sideNav = new ImageView(sides);
-
     //buttons at bottom
     Button cancel = new Button("Cancel Order");
     Button completeOrder = new Button("Complete Order");
@@ -63,17 +33,15 @@ public class Main extends Application {
 
     Label restaurantName = new Label("Burgerverse");
 
-    Item nuggets = new Item(1);
-    Item borg = createItem("borgor.jpg", "Burger");
-    Item fry = createItem("fritasYum.jpg", "Fries");
-    Item kMeal = createItem("kidsMealOWO.jpeg", "Kids Meal");
-    Item milkShake = createItem("milkyshakey.jpg", "Shake");
-    Item rbFloat = createItem("rootbeerFloatin.jpg", "Root Beer Float" );
+    Item nuggets = new Item(4,"Dino Nuggies", "E", 0, 7.0, "dinoNuggiesAreCool.jpg" );
+    Item borg = new Item(1, "Burger", "E", 0, 9.0, "borgor.jpg" );
+    Item fry = new Item(2,"Fries", "S", 0, 2.5, "fritasYum.jpg" );
+    Item kMeal = new Item(6,"Kids Meal", "C", 0, 6.0, "kidsMealOWO.jpeg" );
+    Item milkShake= new Item(3,"Shake", "D", 0, 4.0, "milkyshakey.jpg");
+    Item rbFloat = new Item(8,"Root Beer Float", "D", 0, 6.5, "rootbeerFloatin.jpg" );
 
     Stage window;
     Scene updateMenuScene, addItemScene;
-//    Connection conn = null;
-//    PreparedStatement ps;
     TableView<Item> table;
     Button addItemBtn = new Button();
     Button returnBtn = new Button();
@@ -82,18 +50,24 @@ public class Main extends Application {
     TextField itemIdTF;
     TextField itemNameTF;
     TextField isAvailTF;
+    int ind;
+    int oldItemID;
+    ComboBox comboBox;
+    Connection conn = null;
+    PreparedStatement ps;
 
     public Main() throws SQLException {
     }
 
     @Override
     public void start(Stage primaryStage) {
-
         window = primaryStage;
         //sets up stage to be built!
         window = new Stage();
         window.setTitle("Menu");
         window.setResizable(false);
+        window.setWidth(640);
+        window.setHeight(800);
         window.setScene(getHomePage());
         window.show();
     }
@@ -133,66 +107,25 @@ public class Main extends Application {
         menu.addToMenu(kMeal);
         menu.addToMenu(milkShake);
         menu.addToMenu(rbFloat);
-
-        //center with items for food
-        comboNav.setFitHeight(50);
-        comboNav.setFitWidth(50);
-        comboNav.setOnMouseClicked(mouseEvent -> {
-            //query for itemID's
-            //if they have a "C" in their string, we add item into list, else, we move to next item
-            //display combo nav
-            System.out.println("Combo Nav clicked");
-        });
-        drinkNav.setFitWidth(50);
-        drinkNav.setFitHeight(50);
-        drinkNav.setOnMouseClicked(mouseEvent -> {
-            System.out.println("Drink Nav Clicked");
-            int row = 0;
-            int column = 0;
-            centerNavPane.getChildren().removeAll(title,items);
-            for(int i =0; i<menu.getMenuSize(); i++){
-                if((i+1)%3 == 0){
-                    row++;
-                    column = 0;
-                }
-                items.getChildren().remove(column++, row);
-            }
-            row= 0;
-            column = 0;
-            for(int i =0 ; i<menu.getMenuSize(); i++){
-                if(menu.getItemOnMenu(i).getCategory().equalsIgnoreCase("D")) {
-                    if(column%3 ==0){
-                        //we start a new row
-                        row++;
-                        column= 0;
-                        items.add(getMenuItem(menu.getItemOnMenu(i)), column, row);
-                    }
-                    items.add(getMenuItem(menu.getItemOnMenu(i)), column++, row);
-                }
-            }
-            title.setText("Drinks");
-            centerNavPane.getChildren().addAll(title, items);
-        });
-        kmNav.setFitHeight(50);
-        kmNav.setFitWidth(50);
-        kmNav.setOnMouseClicked(mouseEvent -> {
-            System.out.println("Kids Meal Nav clicked");
-        });
-        mealNav.setFitWidth(50);
-        mealNav.setFitHeight(50);
-        mealNav.setOnMouseClicked(mouseEvent -> {
-            System.out.println("Meal Nav clicked");
-        });
-        sideNav.setFitHeight(50);
-        sideNav.setFitWidth(50);
-        sideNav.setOnMouseClicked(mouseEvent -> {
-            System.out.println("Sides nav clicked");
-        });
+//            FilteredList<Item> filteredProduct = new FilteredList<>(getProduct(), e -> true);
+//            searchText.setOnKeyReleased(e -> {
+//                searchText.textProperty().addListener((observableValue, oldValue, newValue) -> {
+//                    filteredProduct.setPredicate((Predicate<? super Item>) user -> {
+//                        if(newValue == null || newValue.isEmpty()) {
+//                            return true;
+//                        }
+//                        String lowerCaseFilter = newValue.toLowerCase();
+//                        if(user.getItemName().toLowerCase().contains(lowerCaseFilter)) {
+//                            return true;
+//                        }
+//                        return false;
+//                    });
+//                });
+//                SortedList<Item> sortedProduct = new SortedList<>(filteredProduct);
+//                sortedProduct.comparatorProperty().bind(table.comparatorProperty());
+//                table.setItems(sortedProduct);
+//            });
         //side navigation bar that will filter foods
-        HBox filterPane = new HBox(comboNav, mealNav, kmNav, drinkNav, sideNav);
-        filterPane.setSpacing(5);
-        filterPane.setAlignment(Pos.CENTER);
-        filterPane.setPadding(new Insets(10,10,10,10));
 
         //buttons to cancel or complete the order
         completeOrder.setOnAction(actionEvent ->{
@@ -210,6 +143,7 @@ public class Main extends Application {
         HBox bottomNavPane = new HBox(completeOrder, cancel);
         bottomNavPane.setSpacing(10);
         bottomNavPane.setAlignment(Pos.CENTER);
+        bottomNavPane.setPadding(new Insets(10,10,10,10));
 
         //top navigation pane
         //to be implemented; will go to update menu side
@@ -222,21 +156,16 @@ public class Main extends Application {
         updates.setAlignment(Pos.TOP_RIGHT);
         restaurantName.getStyleClass().add("label-Title");
         restaurantName.getFont().getClass().getResource("future.ttf");
-        VBox topPane = new VBox(updates, restaurantName, topBanner, filterPane);
+        VBox topPane = new VBox(updates, restaurantName, topBanner);
         topPane.setAlignment(Pos.CENTER);
 
         //side nav for cart
-        Label cart = new Label("Cart");
-        cart.setAlignment(Pos.CENTER);
-        cart.setPadding(new Insets(20,20,20,20));
-        cart.getStyleClass().add("label-Subtitle");
 
         //whole menu setup -- visual of the main menu for customers
         BorderPane menuSetup = new BorderPane();
         menuSetup.setCenter(centerNavPane);
         //need to add switch for when items get clicked
         menuSetup.setTop(topPane);
-        menuSetup.setRight(cart);
         menuSetup.setBottom(bottomNavPane);
 
         Scene scene = new Scene(menuSetup);
@@ -246,10 +175,6 @@ public class Main extends Application {
     }
 
     public VBox getMenuItem(Item item){
-        Image foodPic = new Image(getClass().getResource(item.getPictureID()).toExternalForm());
-        ImageView pic = new ImageView(foodPic);
-        pic.setFitWidth(150);
-        pic.setFitHeight(150);
 
         //label for food
         Label itemLabel = new Label(item.getItemName());
@@ -263,6 +188,11 @@ public class Main extends Application {
         labels.setAlignment(Pos.CENTER);
         labels.setSpacing(10);
 
+        //fix the picture bad bois cause theyre being pieces of shit
+        Image foodPic = new Image(getClass().getResource(item.getPictureID()).toExternalForm());
+        ImageView pic = new ImageView(foodPic);
+        pic.setFitWidth(150);
+        pic.setFitHeight(150);
         VBox itemOnMenu= new VBox(pic, labels);
         itemOnMenu.setAlignment(Pos.CENTER);
         itemOnMenu.setSpacing(5);
@@ -382,18 +312,33 @@ public class Main extends Application {
             window.setScene(addItem());
         });
 
+        TableColumn<Item, Integer> itemIdCol = new TableColumn<>("Item ID");
+        itemIdCol.setMinWidth(50);
+        itemIdCol.setCellValueFactory(new PropertyValueFactory<>("itemID"));
+
         TableColumn<Item, String> itemCol = new TableColumn<>("Item");
-        itemCol.setMinWidth(400);
-        itemCol.setCellValueFactory(new PropertyValueFactory<>("item"));
+        itemCol.setMinWidth(200);
+        itemCol.setCellValueFactory(new PropertyValueFactory<>("itemName"));
+
+        TableColumn<Item, Integer> isAvailCol = new TableColumn<>("Available");
+        isAvailCol.setMinWidth(50);
+        isAvailCol.setCellValueFactory(new PropertyValueFactory<>("isAvailable"));
 
         TableColumn<Item, Double> priceCol = new TableColumn<>("Price");
-        priceCol.setMinWidth(100);
+        priceCol.setMinWidth(50);
         priceCol.setCellValueFactory(new PropertyValueFactory<>("price"));
 
         table = new TableView<>();
         table.setColumnResizePolicy(TableView.CONSTRAINED_RESIZE_POLICY);
-        table.setItems(getProduct());
-        table.getColumns().addAll(itemCol, priceCol);
+//        table.setItems(getProduct());
+        table.getColumns().addAll(itemIdCol, itemCol, isAvailCol, priceCol);
+
+        table.setOnMouseClicked(event -> {
+            ind = table.getSelectionModel().getSelectedIndex();
+            oldItemID = table.getSelectionModel().getSelectedItem().getItemID();
+            window.setTitle("Edit ITEM");
+            window.setScene(editItem());
+        });
 
         VBox vbox = new VBox();
         vbox.setSpacing(5);
@@ -405,24 +350,24 @@ public class Main extends Application {
         updateMenuPane.setTop(vbox);
         updateMenuPane.setCenter(table);
 
-        FilteredList<Item> filteredProduct = new FilteredList<>(getProduct(), e -> true);
-        searchField.setOnKeyReleased(e -> {
-            searchField.textProperty().addListener((observableValue, oldValue, newValue) -> {
-                filteredProduct.setPredicate((Predicate<? super Item>) user -> {
-                    if(newValue == null || newValue.isEmpty()) {
-                        return true;
-                    }
-                    String lowerCaseFilter = newValue.toLowerCase();
-                    if(user.getItemName().toLowerCase().contains(lowerCaseFilter)) {
-                        return true;
-                    }
-                    return false;
-                });
-            });
-            SortedList<Item> sortedProduct = new SortedList<>(filteredProduct);
-            sortedProduct.comparatorProperty().bind(table.comparatorProperty());
-            table.setItems(sortedProduct);
-        });
+//        FilteredList<Item> filteredProduct = new FilteredList<>(getProduct(), e -> true);
+//        searchField.setOnKeyReleased(e -> {
+//            searchField.textProperty().addListener((observableValue, oldValue, newValue) -> {
+//                filteredProduct.setPredicate((Predicate<? super Item>) user -> {
+//                    if(newValue == null || newValue.isEmpty()) {
+//                        return true;
+//                    }
+//                    String lowerCaseFilter = newValue.toLowerCase();
+//                    if(user.getItemName().toLowerCase().contains(lowerCaseFilter)) {
+//                        return true;
+//                    }
+//                    return false;
+//                });
+//            });
+//            SortedList<Item> sortedProduct = new SortedList<>(filteredProduct);
+//            sortedProduct.comparatorProperty().bind(table.comparatorProperty());
+//            table.setItems(sortedProduct);
+//        });
 
         updateMenuScene = new Scene(updateMenuPane, 600, 500);
         return updateMenuScene;
@@ -431,97 +376,75 @@ public class Main extends Application {
     public Scene addItem() {
         Label addItemLabel = new Label("ADD NEW ITEM");
 
-        Label itemIdLabel = new Label("Item ID: ");
-        TextField itemIdTF = new TextField();
-        HBox itemIdHB = new HBox(itemIdLabel, itemIdTF);
-
         Label itemName = new Label("Item Name: ");
-        TextField itemNameTF = new TextField();
+        itemNameTF = new TextField();
         HBox itemNameHB = new HBox(itemName, itemNameTF);
 
+        Label category = new Label("Category: ");
+        comboBox = new ComboBox();
+        comboBox.getItems().addAll("E", "S", "D", "C");
+        HBox categoryHB = new HBox(category, comboBox);
+
         Label isAvailLabel = new Label("Item Available: ");
-        TextField isAvailTF = new TextField();
+        isAvailTF = new TextField();
         HBox isAvailHB = new HBox(isAvailLabel, isAvailTF);
 
         Label itemPrice = new Label("Item Price: ");
-        TextField itemPriceTF = new TextField();
+        itemPriceTF = new TextField();
         HBox itemPriceHB = new HBox(itemPrice, itemPriceTF);
 
         Label itemPic = new Label("Item Picture: ");
-        TextField itemPicTF = new TextField();
+        itemPicTF = new TextField();
         HBox itemPicHB = new HBox(itemPic, itemPicTF);
 
-        Label multSizeLabel = new Label("Multiple Sizes? ");
-        ToggleGroup yesNoGroup = new ToggleGroup();
+        Button saveItem = new Button("Save item");
+        saveItem.setOnMouseClicked(event -> {
+            if (itemIdTF.getText() != null || itemNameTF.getText() != null
+                    || isAvailTF.getText() != null || itemPriceTF.getText() != null) {
+                try {
+                    conn = (Connection) new SQLConnector("jdbc:mysql://localhost:3306/cs3560f21",
+                            "root", "d4rkw01f");
 
-        RadioButton yesRB = new RadioButton("Yes");
-        yesRB.setToggleGroup(yesNoGroup);
-        yesRB.setSelected(true);
-
-        RadioButton noRB = new RadioButton("No");
-        noRB.setToggleGroup(yesNoGroup);
-        noRB.setSelected(true);
-
-        CheckBox smallCB = new CheckBox("Small");
-        CheckBox mediumCB = new CheckBox("Medium");
-        CheckBox largeCB = new CheckBox("Large");
-
-        HBox sizesHB = new HBox(multSizeLabel, yesRB, noRB);
-        yesNoGroup.selectedToggleProperty().addListener(new ChangeListener<Toggle>() {
-            public void changed(ObservableValue<? extends Toggle> ob, Toggle o, Toggle n) {
-                if (noRB.isSelected()) {
-                    sizesHB.getChildren().removeAll(smallCB, mediumCB, largeCB);
+                    ps = conn.prepareStatement("insert into item"
+                            + "(itemName, category, isAvailable, price, picture) values (?, ?, ?, ?, ?)");
+                    ps.setString(1, itemNameTF.getText());
+                    ps.setString(2, comboBox.getValue().toString());
+                    ps.setInt(3, Integer.parseInt(isAvailTF.getText()));
+                    ps.setDouble(4, Double.parseDouble(itemPriceTF.getText()));
+                    ps.setString(5, itemPicTF.getText());
+                    int res = ps.executeUpdate();
+                    if (res >= 1) {
+                        System.out.println("Add Item Successful");
+                    } else {
+                        System.out.println("Add Item Failed");
+                    }
+                } catch (SQLException ex) {
+                    //idk where this comes from is what we say
+                    System.out.println("Bitch don't work");
                 }
-                if (yesRB.isSelected()) {
-                    sizesHB.getChildren().addAll(smallCB, mediumCB, largeCB);
-                }
+                itemIdTF.setText("");
+                itemNameTF.setText("");
+                isAvailTF.setText("");
+                itemPriceTF.setText("");
+                itemPicTF.setText("");
             }
         });
 
-        Button saveItem = new Button("Save item");
-//        saveItem.setOnMouseClicked(event -> {
-//            if(itemIdTF.getText() != null || itemNameTF.getText() != null
-//                    || isAvailTF.getText() != null || itemPriceTF.getText() != null) {
-//                try {
-//                    conn = MySqlConnection();
-//                    ps = conn.prepareStatement("insert into item"
-//                            + "(itemID, itemName, isAvailable, price) values (?, ?, ?, ?)");
-//                    ps.setInt(1, Integer.parseInt(itemIdTF.getText()));
-//                    ps.setString(2, itemNameTF.getText());
-//                    ps.setInt(3, Integer.parseInt(isAvailTF.getText()));
-//                    ps.setDouble(4, Double.parseDouble(itemPriceTF.getText()));
-//                    int res = ps.executeUpdate();
-//                    if (res >= 1) {
-//                        System.out.println("Add Item Successful");
-//                    } else {
-//                        System.out.println("Add Item Failed");
-//                    }
-//                } catch (SQLException ex) {
-//                    Logger.getLogger(CS3560KioskProject.class.getName()).log(Level.SEVERE, null, ex);
-//                }
-//                itemIdTF.setText("");
-//                isAvailTF.setText("");
-//                isAvailTF.setText("");
-//                itemPriceTF.setText("");
-//            }
-//        });
-
-
-
-        returnBtn = new Button("Cancel");
+        returnBtn = new Button("Return");
         returnBtn.setOnAction(e -> {
+            window.setTitle("UPDATE MENU");
             window.setScene(updateMenu());
         });
 
         HBox saveReturnVB = new HBox(saveItem, returnBtn);
+        saveReturnVB.setSpacing(30);
         saveReturnVB.setAlignment(Pos.CENTER);
 
         VBox addItemVB = new VBox();
         addItemVB.setSpacing(40);
         addItemVB.setPadding(new Insets(10, 10, 10, 10));
-        addItemVB.getChildren().addAll(addItemLabel, itemIdHB, itemNameHB,
-                isAvailHB, itemPriceHB, itemPicHB,
-                sizesHB, saveReturnVB);
+        addItemVB.getChildren().addAll(addItemLabel, itemNameHB,
+                categoryHB, isAvailHB, itemPriceHB, itemPicHB, saveReturnVB);
         addItemVB.setAlignment(Pos.TOP_CENTER);
 
         BorderPane addItemPane = new BorderPane(addItemVB);
@@ -537,11 +460,17 @@ public class Main extends Application {
 
         Label itemIdLabel = new Label("Item ID: ");
         itemIdTF = new TextField();
+        itemIdTF.setEditable(false);
         HBox itemIdHB = new HBox(itemIdLabel, itemIdTF);
 
         Label itemName = new Label("Item Name: ");
         itemNameTF = new TextField();
         HBox itemNameHB = new HBox(itemName, itemNameTF);
+
+        Label category = new Label("Category: ");
+        comboBox = new ComboBox();
+        comboBox.getItems().addAll("E", "S", "D", "C");
+        HBox categoryHB = new HBox(category, comboBox);
 
         Label isAvailLabel = new Label("Item Available: ");
         isAvailTF = new TextField();
@@ -555,62 +484,61 @@ public class Main extends Application {
         itemPicTF = new TextField();
         HBox itemPicHB = new HBox(itemPic, itemPicTF);
 
-        Label multSizeLabel = new Label("Multiple Sizes? ");
-        ToggleGroup yesNoGroup = new ToggleGroup();
+        Button updateItem = new Button("Update item");
+        updateItem.setOnMouseClicked(event -> {
+            if (itemIdTF != null || itemNameTF != null
+                    || isAvailTF != null || itemPriceTF != null) {
+                try {
+                    conn =(Connection) new SQLConnector("jdbc:mysql://localhost:3306/cs3560f21",
+                            "root", "d4rkw01f");
 
-        RadioButton yesRB = new RadioButton("Yes");
-        yesRB.setToggleGroup(yesNoGroup);
-        yesRB.setSelected(true);
 
-        RadioButton noRB = new RadioButton("No");
-        noRB.setToggleGroup(yesNoGroup);
-        noRB.setSelected(true);
+                    ps = conn.prepareStatement("update item set "
+                            + "itemName = ?, category = ?, isAvailable = ?, price = ? where itemID = " + oldItemID);
+                    ps.setString(1, itemNameTF.getText());
+                    ps.setString(2,comboBox.getValue().toString());
+                    ps.setInt(3,Integer.parseInt(isAvailTF.getText()));
+                    ps.setDouble(4,Double.parseDouble(itemPriceTF.getText()));
 
-        CheckBox smallCB = new CheckBox("Small");
-        CheckBox mediumCB = new CheckBox("Medium");
-        CheckBox largeCB = new CheckBox("Large");
-
-        HBox sizesHB = new HBox(multSizeLabel, yesRB, noRB);
-        yesNoGroup.selectedToggleProperty().addListener(new ChangeListener<Toggle>() {
-            public void changed(ObservableValue<? extends Toggle> ob, Toggle o, Toggle n) {
-                if (noRB.isSelected()) {
-                    sizesHB.getChildren().removeAll(smallCB, mediumCB, largeCB);
+                    int res = ps.executeUpdate();
+                    if (res >= 1) {
+                        System.out.println("Item Successfully Updated");
+                    } else {
+                        System.out.println("Item Failed to Update");
+                    }
+                } catch (SQLException ex) {
+                    System.out.println("owo why you no work");
                 }
-                if (yesRB.isSelected()) {
-                    sizesHB.getChildren().addAll(smallCB, mediumCB, largeCB);
-                }
+
             }
         });
 
-        Button updateItem = new Button("Update item");
-//        updateItem.setOnMouseClicked(event -> {
-//            if (itemIdTF != null || itemNameTF != null
-//                    || isAvailTF != null || itemPriceTF != null) {
-//                try {
-//                    conn = MySqlConnection();
-//
-//
-//                    ps = conn.prepareStatement("update item set "
-//                            + "itemID = ?, itemName = ?, isAvailable = ?, price = ? where itemID = " + oldItemID);
-//                    ps.setInt(1, Integer.parseInt(itemIdTF.getText()));
-//                    ps.setString(2, itemNameTF.getText());
-//                    ps.setInt(3, Integer.parseInt(isAvailTF.getText()));
-//                    ps.setDouble(4, Double.parseDouble(itemPriceTF.getText()));
-//
-//                    int res = ps.executeUpdate();
-//                    if (res >= 1) {
-//                        System.out.println("Item Successfully Updated");
-//                    } else {
-//                        System.out.println("Item Failed to Update");
-//                    }
-//                } catch (SQLException ex) {
-//                    Logger.getLogger(CS3560KioskProject.class.getName()).log(Level.SEVERE, null, ex);
-//                }
-//
-//            }
-//        });
-//
 //        showItemToFields(ind);
+
+        Button deleteItem = new Button("Delete");
+        deleteItem.setOnMouseClicked(deleteEvent -> {
+            if (itemIdTF != null || itemNameTF != null
+                    || isAvailTF != null || itemPriceTF != null) {
+                try {
+                    conn = (Connection) new SQLConnector("jdbc:mysql://localhost:3306/cs3560f21",
+                            "root", "d4rkw01f");
+
+
+                    ps = conn.prepareStatement("delete from item where itemID = ?");
+                    ps.setInt(1, Integer.parseInt(itemIdTF.getText()));
+
+                    int res = ps.executeUpdate();
+                    if (res >= 1) {
+                        System.out.println("Item Successfully Deleted");
+                    } else {
+                        System.out.println("Item Failed to Delete");
+                    }
+                } catch (SQLException ex) {
+                    System.out.println("Other shit don't work");
+                }
+
+            }
+        });
 
         returnBtn = new Button("Return");
         returnBtn.setOnAction(e -> {
@@ -618,43 +546,48 @@ public class Main extends Application {
             window.setScene(updateMenu());
         });
 
-        HBox saveReturnVB = new HBox(updateItem, returnBtn);
+        HBox saveReturnVB = new HBox(updateItem, deleteItem, returnBtn);
+        saveReturnVB.setSpacing(30);
         saveReturnVB.setAlignment(Pos.CENTER);
 
         VBox addItemVB = new VBox();
         addItemVB.setSpacing(40);
         addItemVB.setPadding(new Insets(10, 10, 10, 10));
         addItemVB.getChildren().addAll(addItemLabel, itemIdHB, itemNameHB,
-                isAvailHB, itemPriceHB, itemPicHB,
-                sizesHB, saveReturnVB);
+                categoryHB, isAvailHB, itemPriceHB, itemPicHB, saveReturnVB);
         addItemVB.setAlignment(Pos.TOP_CENTER);
 
         BorderPane addItemPane = new BorderPane(addItemVB);
         addItemScene = new Scene(addItemPane, 600, 500);
         return addItemScene;
     }
+//
+//    public void showItemToFields(int index) {
+//        itemIdTF.setText(Integer.toString(getProduct().get(index).getItemID()));
+//        itemNameTF.setText(getProduct().get(index).getItemName());
+//        comboBox.setValue(getProduct().get(index).getCategory());
+//        isAvailTF.setText(Integer.toString(getProduct().get(index).getIsAvailable()));
+//        itemPriceTF.setText(Double.toString(getProduct().get(index).getPrice()));
+//        itemPicTF.setText(getProduct().get(index).getPictureID());
+//    }
 
     //doesn't work yet
-    public ObservableList<Item> getProduct() {
-        ObservableList<Item> products = FXCollections.observableArrayList();
-//        products.add(nuggets);
-//        products.add(borg);
-//        products.add(fry);
-//        products.add(kMeal);
-//        products.add(rbFloat);
-//        products.add(milkShake);
-        return products;
-    }
-
-    private Item createItem(String picture, String itemNameInDB) throws SQLException {
-        CachedRowSet r = sqlConn.query("SELECT * FROM item WHERE itemName = \"" + itemNameInDB +"\"");
-        r.next();
-        Item i = new Item(1);
-        return i;
-    }
-
-    public static void main(String[] args) throws SQLException {
-        launch(args);
-    }
+//    public ObservableList<Item> getProduct() {
+//        ObservableList<Item> products = FXCollections.observableArrayList();
+//        try {
+//            conn = (Connection) new SQLConnector("jdbc:mysql://localhost:3306/cs3560f21",
+//                                                "root", "d4rkw01f");
+//            ResultSet rs = conn.createStatement().executeQuery("select * from item");
+//            while (rs.next()) {
+//                products.add(new Item(rs.getInt(1), rs.getString("itemName"),
+//                        rs.getString("category"), rs.getInt(4),
+//                        Double.parseDouble(rs.getString(5)), rs.getString("picture")));
+//            }
+//        } catch (SQLException ex) {
+//            System.out.println("No clue what is going on but here we are");
+//        }
+//
+//        return products;
+//    }
 
 }

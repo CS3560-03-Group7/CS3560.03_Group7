@@ -21,7 +21,7 @@ import java.util.function.Predicate;
 
 public class Main extends Application {
     //connects to our database or we hope it does
-    SQLConnector sqlConn = new SQLConnector("jdbc:mysql://localhost:3306/cs3560f21", "root", "d4rkw01f");
+    SQLConnector sqlConn = new SQLConnector("", "", "");
     //side navigation images
     Image banner = new Image(getClass().getResource("banner1.png").toExternalForm());
     ImageView topBanner = new ImageView(banner);
@@ -402,8 +402,8 @@ public class Main extends Application {
             if (itemIdTF.getText() != null || itemNameTF.getText() != null
                     || isAvailTF.getText() != null || itemPriceTF.getText() != null) {
                 try {
-                    conn = (Connection) new SQLConnector("jdbc:mysql://localhost:3306/cs3560f21",
-                            "root", "d4rkw01f");
+                    conn = (Connection) new SQLConnector("",
+                            "", "");
 
                     ps = conn.prepareStatement("insert into item"
                             + "(itemName, category, isAvailable, price, picture) values (?, ?, ?, ?, ?)");
@@ -520,8 +520,8 @@ public class Main extends Application {
             if (itemIdTF != null || itemNameTF != null
                     || isAvailTF != null || itemPriceTF != null) {
                 try {
-                    conn = (Connection) new SQLConnector("jdbc:mysql://localhost:3306/cs3560f21",
-                            "root", "d4rkw01f");
+                    conn = (Connection) new SQLConnector("",
+                            "", "");
 
 
                     ps = conn.prepareStatement("delete from item where itemID = ?");
@@ -575,8 +575,8 @@ public class Main extends Application {
 //    public ObservableList<Item> getProduct() {
 //        ObservableList<Item> products = FXCollections.observableArrayList();
 //        try {
-//            conn = (Connection) new SQLConnector("jdbc:mysql://localhost:3306/cs3560f21",
-//                                                "root", "d4rkw01f");
+//            conn = (Connection) new SQLConnector("",
+//                                                "", "");
 //            ResultSet rs = conn.createStatement().executeQuery("select * from item");
 //            while (rs.next()) {
 //                products.add(new Item(rs.getInt(1), rs.getString("itemName"),

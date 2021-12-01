@@ -27,6 +27,15 @@ class Item{
         this.pictureID = pictureID;
         this.quantity = 0;
     }
+    
+    public Item(int itemID, String itemName, String category, int isAvailable, double price, String picture) {
+        this.itemID = itemID;
+        this.itemName = itemName;
+        this.category = category;
+        this.isAvailable = isAvailable;
+        this.price = price;
+        this.pictureID = picture;
+    }
 
     public Item(){
         this("", "", 0.0, "", 0);

@@ -1,5 +1,8 @@
-package cs3560.kiosk.project;
-
+/*
+ * Click nbfs://nbhost/SystemFileSystem/Templates/Licenses/license-default.txt to change this license
+ * Click nbfs://nbhost/SystemFileSystem/Templates/Classes/Class.java to edit this template
+ */
+package cs3560.pkgfinal.project;
 
 import java.io.FileNotFoundException;
 import java.sql.Connection;
@@ -11,7 +14,6 @@ import java.util.function.Predicate;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 import javafx.application.Application;
-import static javafx.application.Application.launch;
 import javafx.collections.FXCollections;
 import javafx.collections.ObservableList;
 import javafx.collections.transformation.FilteredList;
@@ -33,7 +35,8 @@ import javafx.stage.Stage;
 
 
 public class UpdateMenu extends Application {
-    Stage window;
+    //Stage window;
+    //Stage stage;
     Scene updateMenuScene, addItemScene;
     Connection conn = null;
     PreparedStatement ps;
@@ -41,6 +44,7 @@ public class UpdateMenu extends Application {
     TextField itemIdTF;
     TextField itemNameTF;
     ComboBox comboBox;
+    TextField hasSizesTF;
     TextField isAvailTF;
     TextField itemPriceTF;
     TextField itemPicTF;
@@ -49,16 +53,20 @@ public class UpdateMenu extends Application {
     int ind;
     int oldItemID;
     String photopath = "";
+    SQLConnector s;
     
-    @Override
-    public void start(Stage primaryStage) throws FileNotFoundException {
-        window = primaryStage;
-        window.setTitle("UPDATE MENU");
-        window.setScene(updateMenu());
-        window.show();
+    public UpdateMenu(SQLConnector s){
+        this.s = s;
     }
     
-    public Scene updateMenu() {
+    @Override
+    public void start(Stage stage) throws FileNotFoundException {        
+        stage.setTitle("Update Menu");
+        stage.setScene(updateMenu(stage));
+        stage.show();
+    }
+    
+    public Scene updateMenu(Stage stage) {
         Label updateLabel = new Label("Update Menu");
         
         Label clickUpdateLabel = new Label("Click on an item to update it ");
@@ -70,11 +78,30 @@ public class UpdateMenu extends Application {
         clickSearch.setLeft(clickUpdateLabel);
         clickSearch.setRight(hbox);
         
-        addItemBtn = new Button("ADD ITEM");
+        Button backBtn = new Button("Back");
+        backBtn.setOnAction(e -> {
+            stage.setTitle("Main Menu");
+            MainMenu main = new MainMenu(s);
+            try {
+                stage.setScene(main.getHomePage(stage));
+            } catch (FileNotFoundException ex) {
+                Logger.getLogger(UpdateMenu.class.getName()).log(Level.SEVERE, null, ex);
+            }
+        });
+        
+        addItemBtn = new Button("Add Item");
         addItemBtn.setOnAction(event -> {
-            window.setTitle("ADD NEW ITEM");
-            window.setScene(addItem());
+            stage.setTitle("Add New Item");
+            stage.setScene(addItem(stage));
             });
+        
+        BorderPane buttonContainer = new BorderPane();
+        buttonContainer.setLeft(backBtn);
+        buttonContainer.setRight(addItemBtn);
+        buttonContainer.setPadding(new Insets(10,0,10,0));
+        
+        clickSearch.setBottom(buttonContainer);
+        clickSearch.setPadding(new Insets(0,10,0,10));
         
         TableColumn<Item, Integer> itemIdCol = new TableColumn<>("Item ID");
         itemIdCol.setMinWidth(50);
@@ -100,14 +127,14 @@ public class UpdateMenu extends Application {
         table.setOnMouseClicked(event -> {
             ind = table.getSelectionModel().getSelectedIndex();
             oldItemID = table.getSelectionModel().getSelectedItem().getItemID();
-            window.setTitle("Edit ITEM");            
-            window.setScene(editItem());
+            stage.setTitle("Edit Item");            
+            stage.setScene(editItem(stage));
         });
         
         VBox vbox = new VBox();
         vbox.setSpacing(5);
         vbox.setPadding(new Insets(10, 0, 0, 10));
-        vbox.getChildren().addAll(updateLabel, clickSearch, addItemBtn);
+        vbox.getChildren().addAll(updateLabel, clickSearch);
         vbox.setAlignment(Pos.CENTER);        
         
         BorderPane updateMenuPane = new BorderPane();
@@ -137,7 +164,7 @@ public class UpdateMenu extends Application {
         return updateMenuScene;
     }
     
-    public Scene addItem() {
+    public Scene addItem(Stage stage) {
         Label addItemLabel = new Label("ADD NEW ITEM");
 
         Label itemName = new Label("Item Name: ");
@@ -148,6 +175,10 @@ public class UpdateMenu extends Application {
         comboBox = new ComboBox();
         comboBox.getItems().addAll("E", "S", "D", "C");
         HBox categoryHB = new HBox(category, comboBox);
+        
+        Label hasSizesLabel = new Label("Has Sizes: ");
+        hasSizesTF = new TextField();
+        HBox hasSizesHB = new HBox(hasSizesLabel, hasSizesTF);
         
         Label isAvailLabel = new Label("Item Available: ");
         isAvailTF = new TextField();
@@ -163,18 +194,19 @@ public class UpdateMenu extends Application {
         
         Button saveItem = new Button("Save item");
         saveItem.setOnMouseClicked(event -> {
-            if (itemIdTF.getText() != null || itemNameTF.getText() != null
+            if (itemNameTF.getText() != null
                     || isAvailTF.getText() != null || itemPriceTF.getText() != null) {
                 try {
                     conn = MySqlConnection();
                     
                     ps = conn.prepareStatement("insert into item"
-                            + "(itemName, category, isAvailable, price, picture) values (?, ?, ?, ?, ?)");
+                            + "(itemName, category, hasSizes, isAvailable, price, picture) values (?, ?, ?, ?, ?, ?)");
                     ps.setString(1, itemNameTF.getText());
                     ps.setString(2, comboBox.getValue().toString());
-                    ps.setInt(3, Integer.parseInt(isAvailTF.getText()));
-                    ps.setDouble(4, Double.parseDouble(itemPriceTF.getText()));
-                    ps.setString(5, itemPicTF.getText());
+                    ps.setInt(3, Integer.parseInt(hasSizesTF.getText()));
+                    ps.setInt(4, Integer.parseInt(isAvailTF.getText()));
+                    ps.setDouble(5, Double.parseDouble(itemPriceTF.getText()));
+                    ps.setString(6, itemPicTF.getText());
                     int res = ps.executeUpdate();
                     if (res >= 1) {
                         System.out.println("Add Item Successful");
@@ -184,8 +216,9 @@ public class UpdateMenu extends Application {
                 } catch (SQLException ex) {
                     Logger.getLogger(UpdateMenu.class.getName()).log(Level.SEVERE, null, ex);
                 }
-                itemIdTF.setText("");
+                
                 itemNameTF.setText("");
+                hasSizesTF.setText("");
                 isAvailTF.setText("");
                 itemPriceTF.setText("");
                 itemPicTF.setText("");
@@ -194,8 +227,8 @@ public class UpdateMenu extends Application {
 
         returnBtn = new Button("Return");
         returnBtn.setOnAction(e -> {
-            window.setTitle("UPDATE MENU");
-            window.setScene(updateMenu());
+            stage.setTitle("Update Menu");
+            stage.setScene(updateMenu(stage));
         });
 
         HBox saveReturnVB = new HBox(saveItem, returnBtn);
@@ -205,8 +238,8 @@ public class UpdateMenu extends Application {
         VBox addItemVB = new VBox();
         addItemVB.setSpacing(40);
         addItemVB.setPadding(new Insets(10, 10, 10, 10));
-        addItemVB.getChildren().addAll(addItemLabel, itemNameHB,
-                categoryHB, isAvailHB, itemPriceHB, itemPicHB, saveReturnVB);
+        addItemVB.getChildren().addAll(addItemLabel, itemNameHB, categoryHB, 
+                hasSizesHB, isAvailHB, itemPriceHB, itemPicHB, saveReturnVB);
         addItemVB.setAlignment(Pos.TOP_CENTER);
 
         BorderPane addItemPane = new BorderPane(addItemVB);
@@ -214,7 +247,7 @@ public class UpdateMenu extends Application {
         return addItemScene;
     }
     
-    public Scene editItem() {
+    public Scene editItem(Stage stage) {
         Label addItemLabel = new Label("EDIT ITEM");
 
         Label itemIdLabel = new Label("Item ID: ");
@@ -230,6 +263,10 @@ public class UpdateMenu extends Application {
         comboBox = new ComboBox();
         comboBox.getItems().addAll("E", "S", "D", "C");
         HBox categoryHB = new HBox(category, comboBox);
+        
+        Label hasSizesLabel = new Label("Has Sizes: ");
+        hasSizesTF = new TextField();
+        HBox hasSizesHB = new HBox(hasSizesLabel, hasSizesTF);
 
         Label isAvailLabel = new Label("Item Available: ");
         isAvailTF = new TextField();
@@ -252,11 +289,13 @@ public class UpdateMenu extends Application {
                     
                     
                     ps = conn.prepareStatement("update item set "
-                            + "itemName = ?, category = ?, isAvailable = ?, price = ? where itemID = " + oldItemID);
+                            + "itemName = ?, category = ?, hasSizes = ?, isAvailable = ?, "
+                            + "price = ? where itemID = " + oldItemID);
                     ps.setString(1, itemNameTF.getText());
                     ps.setString(2,comboBox.getValue().toString());
-                    ps.setInt(3,Integer.parseInt(isAvailTF.getText()));
-                    ps.setDouble(4,Double.parseDouble(itemPriceTF.getText()));
+                    ps.setInt(3,Integer.parseInt(hasSizesTF.getText()));
+                    ps.setInt(4,Integer.parseInt(isAvailTF.getText()));
+                    ps.setDouble(5,Double.parseDouble(itemPriceTF.getText()));
                     
                     int res = ps.executeUpdate();
                     if (res >= 1) {
@@ -299,8 +338,8 @@ public class UpdateMenu extends Application {
 
         returnBtn = new Button("Return");
         returnBtn.setOnAction(e -> {
-            window.setTitle("UPDATE MENU");
-            window.setScene(updateMenu());
+            stage.setTitle("Update Menu");
+            stage.setScene(updateMenu(stage));
         });
 
         HBox saveReturnVB = new HBox(updateItem, deleteItem, returnBtn);
@@ -310,8 +349,8 @@ public class UpdateMenu extends Application {
         VBox addItemVB = new VBox();
         addItemVB.setSpacing(40);
         addItemVB.setPadding(new Insets(10, 10, 10, 10));
-        addItemVB.getChildren().addAll(addItemLabel, itemIdHB, itemNameHB,
-                categoryHB, isAvailHB, itemPriceHB, itemPicHB, saveReturnVB);
+        addItemVB.getChildren().addAll(addItemLabel, itemIdHB, itemNameHB, 
+                categoryHB, hasSizesHB, isAvailHB, itemPriceHB, itemPicHB, saveReturnVB);
         addItemVB.setAlignment(Pos.TOP_CENTER);
 
         BorderPane addItemPane = new BorderPane(addItemVB);
@@ -323,10 +362,10 @@ public class UpdateMenu extends Application {
         itemIdTF.setText(Integer.toString(getProduct().get(index).getItemID()));
         itemNameTF.setText(getProduct().get(index).getItemName());
         comboBox.setValue(getProduct().get(index).getCategory());
+        hasSizesTF.setText(Integer.toString(getProduct().get(index).getHasSizes()));
         isAvailTF.setText(Integer.toString(getProduct().get(index).getIsAvailable()));
         itemPriceTF.setText(Double.toString(getProduct().get(index).getPrice()));
-        itemPicTF.setText(getProduct().get(index).getPicture());
-        
+        itemPicTF.setText(getProduct().get(index).getPictureID());    
         
     }
     
@@ -349,8 +388,8 @@ public class UpdateMenu extends Application {
             ResultSet rs = conn.createStatement().executeQuery("select * from item");
             while (rs.next()) {
                 products.add(new Item(rs.getInt(1), rs.getString("itemName"), 
-                        rs.getString("category"), rs.getInt(4), 
-                        Double.parseDouble(rs.getString(5)), rs.getString("picture")));
+                        rs.getString("category"), rs.getInt("isAvailable"), 
+                        rs.getInt("isAvailable"), rs.getDouble("price"), rs.getString("picture")));
             }
         } catch (SQLException ex) {
             Logger.getLogger(UpdateMenu.class.getName()).log(Level.SEVERE, null, ex);
@@ -358,9 +397,9 @@ public class UpdateMenu extends Application {
         
         return products;
     }
-
+    /*
     public static void main(String[] args) {
         launch(args);
-    }
+    }*/
      
 }

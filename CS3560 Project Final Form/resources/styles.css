@@ -20,24 +20,34 @@ accent color 3 - #3665a5 (darker blue)
 /*for the title at top; need to change font to desired font*/
 .label-Title{
     -fx-text-fill: white;
-    -fx-font-size: 100;
+    -fx-font-size: 40;
 }
 
 .label-Subtitle{
     -fx-text-fill: white;
-    -fx-font-size: 25;
+    -fx-font-size: 20;
 }
 
 .label-Items{
-    -fx-text-fill: #eaeae8;
+    -fx-text-fill: #ebf4fc;
     -fx-font-size: 13
 }
-/*for the button named "completeOrder" */
-.button-completeOrder{
+
+/*for the button named "updateBtn" */
+.button-menuBtn{
     -fx-background-color: #737779;
     -fx-text-fill: white;
 }
-.button-completeOrder:hover{
+.button-menuBtn:hover{
+    -fx-background-color: #458c5b;
+    -fx-text-fill: black;
+}
+/*green button*/
+.button-completeOrder{
+    -fx-background-color: #83b161;
+    -fx-text-fill: black;
+}
+.button-completeOrder: hover{
     -fx-background-color: #458c5b;
     -fx-text-fill: black;
 }
@@ -45,8 +55,35 @@ accent color 3 - #3665a5 (darker blue)
 /* for the button named "cancel"*/
 
 .button-cancel{
-    -fx-background-color: #737779;
-    -fx-text-fill: white;
+    -fx-background-color: #c75a52;
+    -fx-text-fill: black;
+}
+.button-cancel:hover{
+    -fx-background-color: #ab3229;
+    -fx-text-fill: black;
+}
+
+/*yellow button */
+.button-AddToCart{
+    -fx-background-color: #a4a5a6;
+    -fx-text-fill: black;
+}
+.button-AddToCart:hover{
+    -fx-background-color: #9c9c9a;
+}
+/*add button*/
+.button-adding{
+    -fx-background-color: #83b161;
+    -fx-text-fill: #ebf4fc;
+}
+.button-completeOrder: hover{
+    -fx-background-color: #458c5b;
+    -fx-text-fill: black;
+}
+/*subtract button*/
+.button-subtracting{
+    -fx-background-color: #c75a52;
+    -fx-text-fill: #ebf4fc;
 }
 .button-cancel:hover{
     -fx-background-color: #ab3229;

@@ -1,7 +1,3 @@
-/*
- * Click nbfs://nbhost/SystemFileSystem/Templates/Licenses/license-default.txt to change this license
- * Click nbfs://nbhost/SystemFileSystem/Templates/Classes/Class.java to edit this template
- */
 package main;
 
 import java.io.FileInputStream;
@@ -36,7 +32,7 @@ import javax.sql.rowset.CachedRowSet;
  *
  * @author Josh
  */
-public class MainMenu extends Application {    
+public class MainMenu extends Application {
     private Image dinoNugs;
     private Image burger;
     private Image fries;
@@ -45,23 +41,27 @@ public class MainMenu extends Application {
     private Image rootBeerFloat;
     private Image burgerCombo;
     private Image megaBurger;
+    private Image banner;
 
     private ImageView nugView;
     private ImageView burgerView;
     private ImageView friesView;
     private ImageView kidsMealView;
     private ImageView milkShakeView;
-    private ImageView rootbeerFloatView;  
+    private ImageView rootbeerFloatView;
+    private ImageView bannerView;
     private int quantity = 1; //this is used in the addToOrder function
     private Stage popupwindow = new Stage(); //so is this
     private String size; //aaaand so is this
     private SQLConnector s;
-    private String filepath = "C:\\Users\\Josh\\Desktop\\CS3560.03_Group7-main\\CS3560.03_Group7-main\\";
-    
+    private String filepath = "C:\\Users\\Josh\\Desktop\\CS3560.03_Group7-styled-and-works\\CS3560.03_Group7-styled-and-works\\CS3560FinalProject\\src\\main\\resources\\com\\example\\cs3560finalproject\\";
+
     public MainMenu(SQLConnector s){
         this.s = s;
     }
     private void loadImages() throws FileNotFoundException {
+
+        //had to change the pictures to getClass().getResourcE()....) cause intellij dummy
         burger = new Image(new FileInputStream(filepath + "borgor.jpg"));
         burgerCombo = new Image(new FileInputStream(filepath + "burgerCombo.jpg"));
         dinoNugs = new Image(new FileInputStream(filepath + "dinoNuggiesAreCool.jpg"));
@@ -70,24 +70,31 @@ public class MainMenu extends Application {
         milkShake = new Image(new FileInputStream(filepath + "milkyShakey.jpg"));
         rootBeerFloat = new Image(new FileInputStream(filepath + "rootbeerFloatin.jpg"));
         megaBurger = new Image(new FileInputStream(filepath + "theshameburger.jpg"));
-        
+        //adding a banner to top of the menu so we get that cute theme going
+        banner = new Image(new FileInputStream(filepath + "banner1.png"));
+
         nugView = new ImageView(dinoNugs);
         burgerView = new ImageView(burger);
         friesView = new ImageView(fries);
         kidsMealView = new ImageView(kidsMeal);
         milkShakeView = new ImageView(milkShake);
         rootbeerFloatView = new ImageView(rootBeerFloat);
+        //for the banner view
+        bannerView = new ImageView(banner);
     }
     @Override
     public void start(Stage stage) throws Exception {
         stage.setTitle("Menu");
         stage.setResizable(true);
         stage.setScene(getHomePage(stage));
+        //adding a set default window size becaue no one is stopping me
+        stage.setWidth(650);
+        stage.setResizable(false);
         stage.show();
     }
-    
+
     public Scene getHomePage(Stage stage) throws FileNotFoundException {
-       loadImages();
+        loadImages();
         popupwindow.initModality(Modality.APPLICATION_MODAL);
         Label nugLabel = new Label("Dino Nuggets -- $7.00");
         Label burgLabel = new Label("Burger -- $9.00");
@@ -95,22 +102,25 @@ public class MainMenu extends Application {
         Label kMealLabel = new Label("Kids Meal w/ Chicken Nuggets -- $6.00");
         Label mShakeLabel = new Label("Milk Shake -- $4.00");
         Label rbFloatLabel = new Label("Root Beer Float -- $6.50");
-        
+        //adding label styles to really make everything come together and pop
+
+
         //for the nuggies; set to be eventually placed in a gridpane or something for future
         //Button btnAddToOrder = new Button("Add to Order");
         //btnAddToOrder.setPrefWidth(200);
         nugView.setFitWidth(150);
-        nugView.setFitHeight(150);        
+        nugView.setFitHeight(150);
         Button nugBtn = new Button();
         nugBtn.setGraphic(nugView);
-        
+
         nugBtn.setOnAction(e-> {
             popupwindow.setTitle("");
             popupwindow.setScene(addToOrder(4));
+            popupwindow.setResizable(false);
             popupwindow.showAndWait();
         });
-        
-        nugLabel.getStyleClass().add(".label-white");
+
+        nugLabel.getStyleClass().add("label-Items");
         VBox vNugs = new VBox(nugBtn, nugLabel);
         vNugs.setAlignment(Pos.CENTER);
         vNugs.setSpacing(15);
@@ -120,14 +130,16 @@ public class MainMenu extends Application {
         burgerView.setFitHeight(150);
         Button burgerBtn = new Button();
         burgerBtn.setGraphic(burgerView);
-        
+
         burgerBtn.setOnAction(e-> {
             popupwindow.setTitle("");
             popupwindow.setScene(addToOrder(1));
+            popupwindow.setResizable(false);
             popupwindow.showAndWait();
         });
-        
-        burgLabel.getStyleClass().add(".label-white");
+
+        //change any .label-white to label-Items
+        burgLabel.getStyleClass().add("label-Items");
         VBox vBurg = new VBox(burgerBtn, burgLabel);
         vBurg.setAlignment(Pos.CENTER);
         vBurg.setSpacing(15);
@@ -137,14 +149,15 @@ public class MainMenu extends Application {
         friesView.setFitHeight(150);
         Button fryBtn = new Button();
         fryBtn.setGraphic(friesView);
-        
+
         fryBtn.setOnAction(e-> {
             popupwindow.setTitle("");
             popupwindow.setScene(addToOrder(2));
+            popupwindow.setResizable(false);
             popupwindow.showAndWait();
         });
-        
-        fryLabel.getStyleClass().add(".label-white");
+
+        fryLabel.getStyleClass().add("label-Items");
         VBox vFry = new VBox(fryBtn, fryLabel);
         vFry.setAlignment(Pos.CENTER);
         vFry.setSpacing(15);
@@ -154,14 +167,15 @@ public class MainMenu extends Application {
         kidsMealView.setFitHeight(150);
         Button kidsMealBtn = new Button();
         kidsMealBtn.setGraphic(kidsMealView);
-        
+
         kidsMealBtn.setOnAction(e-> {
             popupwindow.setTitle("");
             popupwindow.setScene(addToOrder(6));
+            popupwindow.setResizable(false);
             popupwindow.showAndWait();
         });
-        
-        kMealLabel.getStyleClass().add(".label-white");
+
+        kMealLabel.getStyleClass().add("label-Items");
         VBox vKMeal = new VBox(kidsMealBtn, kMealLabel);
         vKMeal.setAlignment(Pos.CENTER);
         vKMeal.setSpacing(15);
@@ -171,14 +185,15 @@ public class MainMenu extends Application {
         milkShakeView.setFitHeight(150);
         Button shakeBtn = new Button();
         shakeBtn.setGraphic(milkShakeView);
-        
+
         shakeBtn.setOnAction(e-> {
             popupwindow.setTitle("");
             popupwindow.setScene(addToOrder(3));
+            popupwindow.setResizable(false);
             popupwindow.showAndWait();
         });
-        
-        mShakeLabel.getStyleClass().add(".label-white");
+
+        mShakeLabel.getStyleClass().add("label-Items");
         VBox vShake = new VBox(shakeBtn, mShakeLabel);
         vShake.setAlignment(Pos.CENTER);
         vShake.setSpacing(15);
@@ -188,14 +203,15 @@ public class MainMenu extends Application {
         rootbeerFloatView.setFitHeight(150);
         Button floatBtn = new Button();
         floatBtn.setGraphic(rootbeerFloatView);
-        
-        floatBtn.setOnAction(e-> {            
+
+        floatBtn.setOnAction(e-> {
             popupwindow.setTitle("");
             popupwindow.setScene(addToOrder(8));
+            popupwindow.setResizable(false);
             popupwindow.showAndWait();
         });
-        
-        rbFloatLabel.getStyleClass().add(".label-white");
+
+        rbFloatLabel.getStyleClass().add("label-Items");
         VBox vFloat = new VBox(floatBtn, rbFloatLabel);
         vFloat.setAlignment(Pos.CENTER);
         vFloat.setSpacing(15);
@@ -210,59 +226,66 @@ public class MainMenu extends Application {
         menu.add(vFry, 2, 0);
         menu.add(vKMeal,0,1);
         menu.add(vShake,1,1);
-        menu.add(vFloat,2,1);        
-        
+        menu.add(vFloat,2,1);
+
         Button cartBtn = new Button("View Cart");
-        
         cartBtn.setOnAction(e ->{
-           try {
-               Cart orderCart = new Cart(s);
-               stage.setTitle("Cart");
-               stage.setScene(orderCart.displayCart(stage));
-           } catch (SQLException ex) {
-               Logger.getLogger(MainMenu.class.getName()).log(Level.SEVERE, null, ex);
-           }
+            try {
+                Cart orderCart = new Cart(s);
+                stage.setTitle("Cart");
+                stage.setScene(orderCart.displayCart(stage));
+            } catch (SQLException ex) {
+                Logger.getLogger(MainMenu.class.getName()).log(Level.SEVERE, null, ex);
+            }
         });
-        
+        cartBtn.getStyleClass().add("button-completeOrder");
+
+        //added in style for update button-- should be green adn hover effect is on
         Button updateBtn = new Button("Update Menu");
-        
+        updateBtn.getStyleClass().add("button-menuBtn");
         updateBtn.setOnAction(e -> {
             UpdateMenu up = new UpdateMenu(s);
             stage.setTitle("Update Menu");
             stage.setScene(up.updateMenu(stage));
+            stage.setResizable(false);
         });
-        
+
         VBox topContainer = new VBox();
         BorderPane buttonContainer = new BorderPane();
         buttonContainer.setLeft(updateBtn);
         buttonContainer.setRight(cartBtn);
         buttonContainer.setPadding(new Insets(0,0,15,0));
-        
+
+
         Label restaurantName = new Label("Welcome to Burgerverse!");
-        restaurantName.setFont(new Font("Arial", 24));
+        //restaurantName.setFont(new Font("Arial", 24));
+        restaurantName.getStyleClass().add("label-Title");
         restaurantName.setTextAlignment(TextAlignment.CENTER);
         HBox lblContainer = new HBox(restaurantName);
         lblContainer.setAlignment(Pos.CENTER);
-        topContainer.getChildren().addAll(lblContainer,buttonContainer);
+        //added top banner into the topContainer so it looks pretty
+        topContainer.getChildren().addAll(lblContainer,bannerView,buttonContainer);
         BorderPane itemPane = new BorderPane();
         itemPane.setPadding(new Insets(20,20,20,20));
         itemPane.setTop(topContainer);
         itemPane.setAlignment(topContainer, Pos.CENTER);
         itemPane.setCenter(menu);
         Scene scene = new Scene(itemPane);
+        scene.getStylesheets().add("file:///C:/Users/Josh/Desktop/styles.css");
 
         return scene;
     }
-    
+
     private Scene addToOrder(int itemNum){
         quantity = 1;
         VBox orderBox = new VBox();
         orderBox.setSpacing(20);
         orderBox.setPadding(new Insets(10, 0, 10, 10));
         orderBox.setAlignment(Pos.CENTER);
-        ToggleGroup sizes = new ToggleGroup();        
-        
+        ToggleGroup sizes = new ToggleGroup();
+
         Label choices = new Label("Add to order?");
+        choices.getStyleClass().add("label-Subtitle");
         RadioButton smallBtn = new RadioButton("Small");
         RadioButton medBtn = new RadioButton("Medium");
         RadioButton lrgBtn = new RadioButton("Large");
@@ -271,56 +294,59 @@ public class MainMenu extends Application {
         medBtn.setSelected(true);
         lrgBtn.setToggleGroup(sizes);
         HBox radioBtnBox = new HBox();
-        
+
         smallBtn.setOnAction(e -> {
             size = "S";
         });
         medBtn.setOnAction(e -> {
             size = "M";
-        }); 
+        });
         lrgBtn.setOnAction(e -> {
             size = "L";
         });
         radioBtnBox.setAlignment(Pos.CENTER);
         Button addToOrderBtn = new Button("Add to Order");
-        
+
         radioBtnBox.getChildren().addAll(smallBtn, medBtn, lrgBtn);
-        
-        Button addBtn = new Button("+");   
+
+        Button addBtn = new Button("+");
         Button removeBtn = new Button("-");
-        HBox qDisplay = new HBox();        
+        HBox qDisplay = new HBox();
         Label quantityLbl = new Label(Integer.toString(quantity));
+        quantityLbl.getStyleClass().add("label-Items");
 
         qDisplay.setAlignment(Pos.BASELINE_CENTER);
         qDisplay.setSpacing(10);
         qDisplay.getChildren().addAll(removeBtn,quantityLbl,addBtn);
-        
+
         if(quantity <= 1)
             removeBtn.setDisable(true);
-        
+
         addBtn.setOnAction(e -> {
             quantity++;
             quantityLbl.setText(Integer.toString(quantity));
             removeBtn.setDisable(false);
         });
-        
+        addBtn.getStyleClass().add("button-adding");
+
         removeBtn.setOnAction(e -> {
             quantity--;
             quantityLbl.setText(Integer.toString(quantity));
-             if(quantity <= 1)
+            if(quantity <= 1)
                 removeBtn.setDisable(true);
         });
-        
+        removeBtn.getStyleClass().add("button-subtracting");
+
         addToOrderBtn.setOnAction(e -> {
             try {
                 CachedRowSet results = s.query("SELECT cartID FROM cart WHERE cartID=(SELECT max(cartID) FROM cart);");
                 results.next();
                 int cart = results.getInt("cartID");
-                
+
                 //this query checks to see if this item already exists in the orderitem table
-                String query = "SELECT * FROM orderItem WHERE cartID = " + cart + " AND itemID = " + itemNum + ";"; 
+                String query = "SELECT * FROM orderItem WHERE cartID = " + cart + " AND itemID = " + itemNum + ";";
                 results = s.query(query);
-                
+
                 if(itemNum == 1 || itemNum == 4 || itemNum == 7){
                     if(results.size() == 0) //if it isn't in the table, add it
                         query = "INSERT INTO orderitem(itemID,cartID,quantity) VALUES (" + itemNum + "," + cart + "," + quantity + ");";
@@ -339,27 +365,29 @@ public class MainMenu extends Application {
                         int dbQuantity = results.getInt("quantity");
                         quantity += dbQuantity;
                         query = "UPDATE orderItem SET quantity = " + quantity + " WHERE cartID = " + cart + ";";
-                    }                    
-                }                    
+                    }
+                }
                 s.update(query);
                 popupwindow.hide();
             } catch (SQLException ex) {
                 Logger.getLogger(MainMenu.class.getName()).log(Level.SEVERE, null, ex);
             }
         });
-        
-        if(itemNum == 1 || itemNum == 4 || itemNum == 7){            
+        addToOrderBtn.getStyleClass().add("button-AddToCart");
+
+        if(itemNum == 1 || itemNum == 4 || itemNum == 7){
             orderBox.getChildren().addAll(choices, qDisplay, addToOrderBtn);
         }
         else{
             orderBox.getChildren().addAll(choices, radioBtnBox, qDisplay, addToOrderBtn);
         }
-        
+
         orderBox.setPadding(new Insets(15,15,15,15));
         Scene orderScene = new Scene(orderBox,250,175);
+        orderScene.getStylesheets().add("file:///C:/Users/Josh/Desktop/styles.css");
         return orderScene;
     }
-    
+
     /*
     public static void main(String[] args){
         launch(args);

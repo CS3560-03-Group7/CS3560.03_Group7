@@ -1,13 +1,5 @@
-/*
- * Click nbfs://nbhost/SystemFileSystem/Templates/Licenses/license-default.txt to change this license
- * Click nbfs://nbhost/SystemFileSystem/Templates/Classes/Class.java to edit this template
- */
 package main;
 
-/**
- *
- * @author Josh
- */
 import java.sql.Connection;
 import java.sql.DatabaseMetaData;
 import java.sql.DriverManager;
@@ -23,76 +15,74 @@ public class SQLConnector  {
     private String dbURL;
     private String user;
     private String pass;
-	
+
     public SQLConnector(String url, String username, String password) {
-    	this.dbURL = url;
-    	this.user = username;
-    	this.pass = password;
+        this.dbURL = url;
+        this.user = username;
+        this.pass = password;
     }
-    
-	private Connection connect() {
-		Connection conn = null;
-		
-		
+
+    private Connection connect() {
+        Connection conn = null;
         try {
-			conn = DriverManager.getConnection(dbURL, user, pass);
-		} catch (SQLException e) {
-			e.printStackTrace();
-		}
-        
+            conn = DriverManager.getConnection(dbURL, user, pass);
+        } catch (SQLException e) {
+            e.printStackTrace();
+        }
+
         return conn;
-	}
-	
-	public CachedRowSet query(String query) throws SQLException{
-		Connection conn = connect();
-		ResultSet rs = null;
-		
-		
-		Statement stmt = conn.createStatement();
-		rs = stmt.executeQuery(query);		
-		
-		RowSetFactory factory = RowSetProvider.newFactory();
-		CachedRowSet rowset = factory.createCachedRowSet();
-		rowset.populate(rs);
-		if(rs != null) 
+    }
+
+    public CachedRowSet query(String query) throws SQLException{
+        Connection conn = connect();
+        ResultSet rs = null;
+
+
+        Statement stmt = conn.createStatement();
+        rs = stmt.executeQuery(query);
+
+        RowSetFactory factory = RowSetProvider.newFactory();
+        CachedRowSet rowset = factory.createCachedRowSet();
+        rowset.populate(rs);
+        if(rs != null)
             try {rs.close();} catch (SQLException e){e.printStackTrace();}
-        if(stmt!= null) 
+        if(stmt!= null)
             try {stmt.close();} catch (SQLException e){e.printStackTrace();}
         try {
             if (conn != null && !conn.isClosed()) {
                 conn.close();
-                }
-            } catch (SQLException ex) {
-                ex.printStackTrace();
             }
-        
-		return rowset;
-	}
-	
-	public int update(String query) throws SQLException{
-		Connection conn = connect();		
-		int rowsUpdated = 0;
-		
-		Statement stmt = conn.createStatement();
-		rowsUpdated = stmt.executeUpdate(query);
-		
-		 if(stmt!= null) 
-	            try {stmt.close();} catch (SQLException e){e.printStackTrace();}
-	        try {
-	            if (conn != null && !conn.isClosed()) {
-	                conn.close();
-	                }
-	            } catch (SQLException ex) {
-	                ex.printStackTrace();
-	            }
-	        
-			return rowsUpdated;
-	}
-	
-	public void getServerInfo()  throws SQLException {
-		Connection conn = connect();
-		
-		if (conn != null) {
+        } catch (SQLException ex) {
+            ex.printStackTrace();
+        }
+
+        return rowset;
+    }
+
+    public int update(String query) throws SQLException{
+        Connection conn = connect();
+        int rowsUpdated = 0;
+
+        Statement stmt = conn.createStatement();
+        rowsUpdated = stmt.executeUpdate(query);
+
+        if(stmt!= null)
+            try {stmt.close();} catch (SQLException e){e.printStackTrace();}
+        try {
+            if (conn != null && !conn.isClosed()) {
+                conn.close();
+            }
+        } catch (SQLException ex) {
+            ex.printStackTrace();
+        }
+
+        return rowsUpdated;
+    }
+
+    public void getServerInfo()  throws SQLException {
+        Connection conn = connect();
+
+        if (conn != null) {
             DatabaseMetaData dm = (DatabaseMetaData) conn.getMetaData();
             System.out.println("Database name: " + conn.getCatalog());
             System.out.println("Driver name: " + dm.getDriverName());
@@ -100,14 +90,14 @@ public class SQLConnector  {
             System.out.println("Product name: " + dm.getDatabaseProductName());
             System.out.println("Product version: " + dm.getDatabaseProductVersion());
         }
-		
-		try {
+
+        try {
             if (conn != null && !conn.isClosed()) {
                 conn.close();
             }
         } catch (SQLException ex) {
             ex.printStackTrace();
         }
-	}
+    }
 
 }

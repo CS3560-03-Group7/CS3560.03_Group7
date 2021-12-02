@@ -20,7 +20,7 @@ public class Order
         this.orderCartID = cartID;
         this.trackingNum = trackingNum;
         this.orderTime = orderTime;
-        
+
         String query = "SELECT orderID FROM `order` WHERE orderCartID = " + Integer.toString(this.orderCartID) + ";";
         try {
             CachedRowSet results = s.query(query);
@@ -29,7 +29,7 @@ public class Order
         } catch (SQLException ex) {
             Logger.getLogger(Order.class.getName()).log(Level.SEVERE, null, ex);
         }
-        
+
     }
 
     //standard accessor/mutator methods for trackingNum
@@ -48,7 +48,7 @@ public class Order
     {
         orderList = cartList;
     }
-    
+
     public void sendOrderToKitchen(){
         System.out.println("Order #" + this.trackingNum + " sent to kitchen.");
     }

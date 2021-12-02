@@ -1,7 +1,3 @@
-/*
- * Click nbfs://nbhost/SystemFileSystem/Templates/Licenses/license-default.txt to change this license
- * Click nbfs://nbhost/SystemFileSystem/Templates/Classes/Class.java to edit this template
- */
 package main;
 
 import java.sql.SQLException;
@@ -25,12 +21,13 @@ public class Item {
     private double price;
     private String pictureID;
     private int quantity;
+    private int hasSizes;
 
     //Constructor takes in itemID and populates instance of item based on what exists in the database
     //for that itemID
     public Item(int itemID) throws SQLException{
         this.itemID = itemID;
-       String dbURL = "jdbc:mysql://localhost:3306/cs3560f21";
+        String dbURL = "jdbc:mysql://localhost:3306/cs3560f21";
         String user = "root";
         String pass = "CS3560@";
         SQLConnector s = new SQLConnector(dbURL, user, pass);
@@ -58,10 +55,11 @@ public class Item {
         }
     }
 
-    public Item(int itemID, String itemName, String category, int isAvailable, double price, String picture) {
+    public Item(int itemID, String itemName, String category, int hasSizes, int isAvailable, double price, String picture) {
         this.itemID = itemID;
         this.itemName = itemName;
         this.category = category;
+        this.hasSizes = hasSizes;
         this.isAvailable = isAvailable;
         this.price = price;
         this.pictureID = picture;
@@ -69,6 +67,10 @@ public class Item {
 
     public String getCategory(){
         return  this.category;
+    }
+    
+    public int getHasSizes(){
+        return this.hasSizes;
     }
 
     public String getItemName() {
@@ -94,6 +96,10 @@ public class Item {
     public void setCategory(String newCategory) {
         if(newCategory == "E" ||newCategory == "C" ||newCategory == "D" ||newCategory == "S")
             this.category = newCategory;
+    }
+    
+    public void setHasSizes(int hasSizes) {
+        this.hasSizes = hasSizes;
     }
 
     public void setItemName(String newName) {

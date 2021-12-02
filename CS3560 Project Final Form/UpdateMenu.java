@@ -1,7 +1,3 @@
-/*
- * Click nbfs://nbhost/SystemFileSystem/Templates/Licenses/license-default.txt to change this license
- * Click nbfs://nbhost/SystemFileSystem/Templates/Classes/Class.java to edit this template
- */
 package main;
 
 import java.io.FileNotFoundException;
@@ -44,7 +40,8 @@ public class UpdateMenu extends Application {
     TableView<Item> table;
     TextField itemIdTF;
     TextField itemNameTF;
-    ComboBox comboBox;
+    ComboBox comboBox;    
+    TextField hasSizesTF;
     TextField isAvailTF;
     TextField itemPriceTF;
     TextField itemPicTF;
@@ -54,30 +51,33 @@ public class UpdateMenu extends Application {
     int oldItemID;
     String photopath = "";
     SQLConnector s;
-    
+
     public UpdateMenu(SQLConnector s){
         this.s = s;
     }
-    
+
     @Override
-    public void start(Stage stage) throws FileNotFoundException {        
+    public void start(Stage stage) throws FileNotFoundException {
         stage.setTitle("Update Menu");
         stage.setScene(updateMenu(stage));
         stage.show();
     }
-    
+
     public Scene updateMenu(Stage stage) {
         Label updateLabel = new Label("Update Menu");
-        
+        updateLabel.getStyleClass().add("label-Subtitle");
+
         Label clickUpdateLabel = new Label("Click on an item to update it ");
+        clickUpdateLabel.getStyleClass().add("label-Items");
         Label searchLabel = new Label("Search: ");
+        searchLabel.getStyleClass().add("label-Items");
         TextField searchField = new TextField();
         searchField.setMaxWidth(300);
         HBox hbox = new HBox(searchLabel, searchField);
         BorderPane clickSearch = new BorderPane();
         clickSearch.setLeft(clickUpdateLabel);
         clickSearch.setRight(hbox);
-        
+
         Button backBtn = new Button("Back");
         backBtn.setOnAction(e -> {
             stage.setTitle("Main Menu");
@@ -88,59 +88,61 @@ public class UpdateMenu extends Application {
                 Logger.getLogger(UpdateMenu.class.getName()).log(Level.SEVERE, null, ex);
             }
         });
-        
+        backBtn.getStyleClass().add("button-AddToCart");
+
         addItemBtn = new Button("Add Item");
         addItemBtn.setOnAction(event -> {
             stage.setTitle("Add New Item");
             stage.setScene(addItem(stage));
-            });
-        
+        });
+        addItemBtn.getStyleClass().add("button-adding");
+
         BorderPane buttonContainer = new BorderPane();
         buttonContainer.setLeft(backBtn);
         buttonContainer.setRight(addItemBtn);
         buttonContainer.setPadding(new Insets(10,0,10,0));
-        
+
         clickSearch.setBottom(buttonContainer);
         clickSearch.setPadding(new Insets(0,10,0,10));
-        
+
         TableColumn<Item, Integer> itemIdCol = new TableColumn<>("Item ID");
         itemIdCol.setMinWidth(50);
         itemIdCol.setCellValueFactory(new PropertyValueFactory<>("itemID"));
-        
+
         TableColumn<Item, String> itemCol = new TableColumn<>("Item");
         itemCol.setMinWidth(200);
         itemCol.setCellValueFactory(new PropertyValueFactory<>("itemName"));
-        
+
         TableColumn<Item, Integer> isAvailCol = new TableColumn<>("Available");
         isAvailCol.setMinWidth(50);
         isAvailCol.setCellValueFactory(new PropertyValueFactory<>("isAvailable"));
-        
+
         TableColumn<Item, Double> priceCol = new TableColumn<>("Price");
         priceCol.setMinWidth(50);
         priceCol.setCellValueFactory(new PropertyValueFactory<>("price"));
-        
+
         table = new TableView<>();
         table.setColumnResizePolicy(TableView.CONSTRAINED_RESIZE_POLICY);
         table.setItems(getProduct());
         table.getColumns().addAll(itemIdCol, itemCol, isAvailCol, priceCol);
-        
+
         table.setOnMouseClicked(event -> {
             ind = table.getSelectionModel().getSelectedIndex();
             oldItemID = table.getSelectionModel().getSelectedItem().getItemID();
-            stage.setTitle("Edit Item");            
+            stage.setTitle("Edit Item");
             stage.setScene(editItem(stage));
         });
-        
+
         VBox vbox = new VBox();
         vbox.setSpacing(5);
         vbox.setPadding(new Insets(10, 0, 0, 10));
         vbox.getChildren().addAll(updateLabel, clickSearch);
-        vbox.setAlignment(Pos.CENTER);        
-        
+        vbox.setAlignment(Pos.CENTER);
+
         BorderPane updateMenuPane = new BorderPane();
         updateMenuPane.setTop(vbox);
         updateMenuPane.setCenter(table);
-        
+
         FilteredList<Item> filteredProduct = new FilteredList<>(getProduct(), e -> true);
         searchField.setOnKeyReleased(e -> {
             searchField.textProperty().addListener((observableValue, oldValue, newValue) -> {
@@ -159,49 +161,62 @@ public class UpdateMenu extends Application {
             sortedProduct.comparatorProperty().bind(table.comparatorProperty());
             table.setItems(sortedProduct);
         });
-        
-        updateMenuScene = new Scene(updateMenuPane, 600, 500);
+
+        updateMenuScene = new Scene(updateMenuPane);
+        updateMenuScene.getStylesheets().add("file:///C:/Users/Josh/Desktop/styles.css");
         return updateMenuScene;
     }
-    
+
     public Scene addItem(Stage stage) {
         Label addItemLabel = new Label("ADD NEW ITEM");
+        addItemLabel.getStyleClass().add("label-Subtitle");
 
         Label itemName = new Label("Item Name: ");
+        itemName.getStyleClass().add("label-Items");
         itemNameTF = new TextField();
         HBox itemNameHB = new HBox(itemName, itemNameTF);
-        
+
         Label category = new Label("Category: ");
+        category.getStyleClass().add("label-Items");
         comboBox = new ComboBox();
         comboBox.getItems().addAll("E", "S", "D", "C");
         HBox categoryHB = new HBox(category, comboBox);
         
+        Label hasSizesLabel = new Label("Has Sizes: ");
+        hasSizesLabel.getStyleClass().add("label-Items");
+        hasSizesTF = new TextField();
+        HBox hasSizesHB = new HBox(hasSizesLabel, hasSizesTF);
+
         Label isAvailLabel = new Label("Item Available: ");
+        isAvailLabel.getStyleClass().add("label-Items");
         isAvailTF = new TextField();
         HBox isAvailHB = new HBox(isAvailLabel, isAvailTF);
 
         Label itemPrice = new Label("Item Price: ");
+        itemPrice.getStyleClass().add("label-Items");
         itemPriceTF = new TextField();
         HBox itemPriceHB = new HBox(itemPrice, itemPriceTF);
 
         Label itemPic = new Label("Item Picture: ");
+        itemPic.getStyleClass().add("label-Items");
         itemPicTF = new TextField();
         HBox itemPicHB = new HBox(itemPic, itemPicTF);
-        
+
         Button saveItem = new Button("Save item");
         saveItem.setOnMouseClicked(event -> {
             if (itemNameTF.getText() != null
                     || isAvailTF.getText() != null || itemPriceTF.getText() != null) {
                 try {
                     conn = MySqlConnection();
-                    
+
                     ps = conn.prepareStatement("insert into item"
-                            + "(itemName, category, isAvailable, price, picture) values (?, ?, ?, ?, ?)");
+                            + "(itemName, category, hasSizes, isAvailable, price, picture) values (?, ?, ?, ?, ?, ?)");
                     ps.setString(1, itemNameTF.getText());
                     ps.setString(2, comboBox.getValue().toString());
-                    ps.setInt(3, Integer.parseInt(isAvailTF.getText()));
-                    ps.setDouble(4, Double.parseDouble(itemPriceTF.getText()));
-                    ps.setString(5, itemPicTF.getText());
+                    ps.setInt(3, Integer.parseInt(hasSizesTF.getText()));
+                    ps.setInt(4, Integer.parseInt(isAvailTF.getText()));
+                    ps.setDouble(5, Double.parseDouble(itemPriceTF.getText()));
+                    ps.setString(6, itemPicTF.getText());
                     int res = ps.executeUpdate();
                     if (res >= 1) {
                         System.out.println("Add Item Successful");
@@ -211,19 +226,22 @@ public class UpdateMenu extends Application {
                 } catch (SQLException ex) {
                     Logger.getLogger(UpdateMenu.class.getName()).log(Level.SEVERE, null, ex);
                 }
-                //itemIdTF.setText("");
+                itemIdTF.setText("");
                 itemNameTF.setText("");
+                hasSizesTF.setText("");
                 isAvailTF.setText("");
                 itemPriceTF.setText("");
                 itemPicTF.setText("");
             }
         });
+        saveItem.getStyleClass().add("button-completeOrder");
 
         returnBtn = new Button("Return");
         returnBtn.setOnAction(e -> {
             stage.setTitle("Update Menu");
             stage.setScene(updateMenu(stage));
         });
+        returnBtn.getStyleClass().add("button-AddToCart");
 
         HBox saveReturnVB = new HBox(saveItem, returnBtn);
         saveReturnVB.setSpacing(30);
@@ -233,40 +251,54 @@ public class UpdateMenu extends Application {
         addItemVB.setSpacing(40);
         addItemVB.setPadding(new Insets(10, 10, 10, 10));
         addItemVB.getChildren().addAll(addItemLabel, itemNameHB,
-                categoryHB, isAvailHB, itemPriceHB, itemPicHB, saveReturnVB);
+                categoryHB, hasSizesHB, isAvailHB, itemPriceHB, itemPicHB, saveReturnVB);
         addItemVB.setAlignment(Pos.TOP_CENTER);
 
         BorderPane addItemPane = new BorderPane(addItemVB);
-        addItemScene = new Scene(addItemPane, 600, 500);
+        addItemScene = new Scene(addItemPane, 600,600);
+        addItemScene.getStylesheets().add("file:///C:/Users/Josh/Desktop/styles.css");
+
         return addItemScene;
     }
-    
+
     public Scene editItem(Stage stage) {
         Label addItemLabel = new Label("EDIT ITEM");
+        addItemLabel.getStyleClass().add("label-Subtitle");
 
-        /*Label itemIdLabel = new Label("Item ID: ");
+        Label itemIdLabel = new Label("Item ID: ");
         itemIdTF = new TextField();
         itemIdTF.setEditable(false);
-        HBox itemIdHB = new HBox(itemIdLabel, itemIdTF);*/
+        itemIdTF.setDisable(true);
+        HBox itemIdHB = new HBox(itemIdLabel, itemIdTF);
 
         Label itemName = new Label("Item Name: ");
+        itemName.getStyleClass().add("label-Items");
         itemNameTF = new TextField();
         HBox itemNameHB = new HBox(itemName, itemNameTF);
-        
+
         Label category = new Label("Category: ");
+        category.getStyleClass().add("label-Items");
         comboBox = new ComboBox();
         comboBox.getItems().addAll("E", "S", "D", "C");
         HBox categoryHB = new HBox(category, comboBox);
+        
+        Label hasSizesLabel = new Label("Has Sizes: ");
+        hasSizesLabel.getStyleClass().add("label-Items");
+        hasSizesTF = new TextField();
+        HBox hasSizesHB = new HBox(hasSizesLabel, hasSizesTF);
 
         Label isAvailLabel = new Label("Item Available: ");
+        isAvailLabel.getStyleClass().add("label-Items");
         isAvailTF = new TextField();
         HBox isAvailHB = new HBox(isAvailLabel, isAvailTF);
 
         Label itemPrice = new Label("Item Price: ");
+        itemPrice.getStyleClass().add("label-Items");
         itemPriceTF = new TextField();
         HBox itemPriceHB = new HBox(itemPrice, itemPriceTF);
 
         Label itemPic = new Label("Item Picture: ");
+        itemPic.getStyleClass().add("label-Items");
         itemPicTF = new TextField();
         HBox itemPicHB = new HBox(itemPic, itemPicTF);
 
@@ -276,15 +308,17 @@ public class UpdateMenu extends Application {
                     || isAvailTF != null || itemPriceTF != null) {
                 try {
                     conn = MySqlConnection();
-                    
-                    
+
+
                     ps = conn.prepareStatement("update item set "
-                            + "itemName = ?, category = ?, isAvailable = ?, price = ? where itemID = " + oldItemID);
+                            + "itemName = ?, category = ?, hasSizes = ?, isAvailable = ?, "
+                            + "price = ? where itemID = " + oldItemID);
                     ps.setString(1, itemNameTF.getText());
                     ps.setString(2,comboBox.getValue().toString());
-                    ps.setInt(3,Integer.parseInt(isAvailTF.getText()));
-                    ps.setDouble(4,Double.parseDouble(itemPriceTF.getText()));
-                    
+                    ps.setInt(3,Integer.parseInt(hasSizesTF.getText()));
+                    ps.setInt(4,Integer.parseInt(isAvailTF.getText()));
+                    ps.setDouble(5,Double.parseDouble(itemPriceTF.getText()));
+
                     int res = ps.executeUpdate();
                     if (res >= 1) {
                         System.out.println("Item Successfully Updated");
@@ -294,23 +328,24 @@ public class UpdateMenu extends Application {
                 } catch (SQLException ex) {
                     Logger.getLogger(UpdateMenu.class.getName()).log(Level.SEVERE, null, ex);
                 }
-                
+
             }
         });
-        
+        updateItem.getStyleClass().add("button-completeOrder");
+
         showItemToFields(ind);
-        
+
         Button deleteItem = new Button("Delete");
         deleteItem.setOnMouseClicked(deleteEvent -> {
             if (itemIdTF != null || itemNameTF != null
                     || isAvailTF != null || itemPriceTF != null) {
                 try {
                     conn = MySqlConnection();
-                    
-                    
+
+
                     ps = conn.prepareStatement("delete from item where itemID = ?");
                     ps.setInt(1, Integer.parseInt(itemIdTF.getText()));
-                    
+
                     int res = ps.executeUpdate();
                     if (res >= 1) {
                         System.out.println("Item Successfully Deleted");
@@ -320,15 +355,17 @@ public class UpdateMenu extends Application {
                 } catch (SQLException ex) {
                     Logger.getLogger(UpdateMenu.class.getName()).log(Level.SEVERE, null, ex);
                 }
-                
+
             }
         });
+        deleteItem.getStyleClass().add("button-cancel");
 
         returnBtn = new Button("Return");
         returnBtn.setOnAction(e -> {
             stage.setTitle("Update Menu");
             stage.setScene(updateMenu(stage));
         });
+        returnBtn.getStyleClass().add("button-AddToCart");
 
         HBox saveReturnVB = new HBox(updateItem, deleteItem, returnBtn);
         saveReturnVB.setSpacing(30);
@@ -337,29 +374,31 @@ public class UpdateMenu extends Application {
         VBox addItemVB = new VBox();
         addItemVB.setSpacing(40);
         addItemVB.setPadding(new Insets(10, 10, 10, 10));
-        //addItemVB.getChildren().addAll(addItemLabel, itemIdHB, itemNameHB, categoryHB, isAvailHB, itemPriceHB, itemPicHB, saveReturnVB);
-        addItemVB.getChildren().addAll(addItemLabel, itemNameHB, categoryHB, isAvailHB, itemPriceHB, itemPicHB, saveReturnVB);
+        addItemVB.getChildren().addAll(addItemLabel, itemIdHB, itemNameHB, categoryHB, hasSizesHB, isAvailHB, itemPriceHB, itemPicHB, saveReturnVB);
+        //addItemVB.getChildren().addAll(addItemLabel, itemNameHB, categoryHB, hasSizesHB, isAvailHB, itemPriceHB, itemPicHB, saveReturnVB);
         addItemVB.setAlignment(Pos.TOP_CENTER);
 
         BorderPane addItemPane = new BorderPane(addItemVB);
-        addItemScene = new Scene(addItemPane, 600, 500);
+        addItemScene = new Scene(addItemPane,600,600);
+        addItemScene.getStylesheets().add("file:///C:/Users/Josh/Desktop/styles.css");
         return addItemScene;
     }
-    
+
     public void showItemToFields(int index) {
-        //itemIdTF.setText(Integer.toString(getProduct().get(index).getItemID()));
+        itemIdTF.setText(Integer.toString(getProduct().get(index).getItemID()));
         itemNameTF.setText(getProduct().get(index).getItemName());
         comboBox.setValue(getProduct().get(index).getCategory());
+        hasSizesTF.setText(Integer.toString(getProduct().get(index).getHasSizes()));
         isAvailTF.setText(Integer.toString(getProduct().get(index).getIsAvailable()));
         itemPriceTF.setText(Double.toString(getProduct().get(index).getPrice()));
-        //itemPicTF.setText(getProduct().get(index).getPicture());    
-        
+        itemPicTF.setText(getProduct().get(index).getPictureID());
+
     }
-    
+
     public Connection MySqlConnection() {
         try {
             Class.forName("com.mysql.cj.jdbc.Driver");
-            conn = DriverManager.getConnection("jdbc:mysql://localHost:3306/cs3560f21", "root", "CS3560@");
+            conn = DriverManager.getConnection("jdbc:mysql://localhost:3306/cs3560f21", "root", "CS3560@");
             System.out.println("MySQL connection Successful");
             return conn;
         } catch (Exception e) {
@@ -367,26 +406,26 @@ public class UpdateMenu extends Application {
             return null;
         }
     }
- 
+
     public ObservableList<Item> getProduct() {
         ObservableList<Item> products = FXCollections.observableArrayList();
         try {
             conn = MySqlConnection();
             ResultSet rs = conn.createStatement().executeQuery("select * from item");
             while (rs.next()) {
-                products.add(new Item(rs.getInt(1), rs.getString("itemName"), 
-                        rs.getString("category"), rs.getInt("isAvailable"), 
+                products.add(new Item(rs.getInt(1), rs.getString("itemName"),
+                        rs.getString("category"), rs.getInt("hasSizes"),rs.getInt("isAvailable"),
                         rs.getDouble("price"), rs.getString("picture")));
             }
         } catch (SQLException ex) {
             Logger.getLogger(UpdateMenu.class.getName()).log(Level.SEVERE, null, ex);
         }
-        
+
         return products;
     }
     /*
     public static void main(String[] args) {
         launch(args);
     }*/
-     
+
 }

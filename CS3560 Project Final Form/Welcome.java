@@ -22,61 +22,7 @@ import javafx.scene.text.TextAlignment;
 import javafx.stage.Stage;
 import javax.sql.rowset.CachedRowSet;
 
-/**
- *
- * @author Josh
- */
 public class Welcome extends Application {
-/*
-    @Override
-    public void start(Stage stage) throws Exception {
-        String url = "jdbc:mysql://localhost:3306/cs3560f21";
-        String username = "root";
-        String password = "CS3560@";
-        DateTimeFormatter dateFormat = DateTimeFormatter.ofPattern("dd/MM/yyy HH:mm:ss");
-
-        SQLConnector s = new SQLConnector(url,username,password);
-
-        Label welcomeLbl = new Label("Welcome! Press \"Get Started\" to begin your order!");
-        welcomeLbl.setFont(new Font("Arial",24));
-        welcomeLbl.setTextAlignment(TextAlignment.CENTER);
-
-        Button btn1 = new Button("Get Started");
-        EventHandler<ActionEvent> click;
-        click = new EventHandler<ActionEvent>(){
-            public void handle(ActionEvent e)
-            {
-                LocalDateTime orderLDT = LocalDateTime.now();
-                String orderStartTime = dateFormat.format(orderLDT);
-                String query = "INSERT INTO cart(startTime) VALUES \"" + orderStartTime + "\";";
-                try {
-                    s.update(query);
-                } catch (SQLException ex) {
-                    Logger.getLogger(Welcome.class.getName()).log(Level.SEVERE, null, ex);
-                }
-                stage.setTitle("Main Menu");
-                //stage.setScene(Main.getHomePage());
-
-            }
-        };
-        btn1.setOnAction(click);
-        StackPane root = new StackPane();
-        VBox content = new VBox();
-        content.setAlignment(Pos.CENTER);
-        content.setSpacing(20);
-        content.getChildren().addAll(welcomeLbl,btn1);
-        root.getChildren().add(content);
-        Scene scene = new Scene(root, 600,400);
-        stage.setScene(scene);
-        stage.setTitle("Welcome");
-        stage.show();
-
-    }
-
-    public static void main(String[] args){
-        launch(args);
-    }
-    */
 
     @Override
     public void start(Stage stage) throws Exception {

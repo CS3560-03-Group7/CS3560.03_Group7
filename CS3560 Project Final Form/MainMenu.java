@@ -28,10 +28,6 @@ import javafx.stage.Modality;
 import javafx.stage.Stage;
 import javax.sql.rowset.CachedRowSet;
 
-/**
- *
- * @author Josh
- */
 public class MainMenu extends Application {
     private Image dinoNugs;
     private Image burger;
@@ -60,8 +56,7 @@ public class MainMenu extends Application {
         this.s = s;
     }
     private void loadImages() throws FileNotFoundException {
-
-        //had to change the pictures to getClass().getResourcE()....) cause intellij dummy
+       
         burger = new Image(new FileInputStream(filepath + "borgor.jpg"));
         burgerCombo = new Image(new FileInputStream(filepath + "burgerCombo.jpg"));
         dinoNugs = new Image(new FileInputStream(filepath + "dinoNuggiesAreCool.jpg"));
@@ -87,7 +82,6 @@ public class MainMenu extends Application {
         stage.setTitle("Menu");
         stage.setResizable(true);
         stage.setScene(getHomePage(stage));
-        //adding a set default window size becaue no one is stopping me
         stage.setWidth(650);
         stage.setResizable(false);
         stage.show();
@@ -125,7 +119,7 @@ public class MainMenu extends Application {
         vNugs.setAlignment(Pos.CENTER);
         vNugs.setSpacing(15);
 
-        //for the pretty patties ~~ i mean borgs
+        //for the pretty patties
         burgerView.setFitWidth(150);
         burgerView.setFitHeight(150);
         Button burgerBtn = new Button();
@@ -180,7 +174,7 @@ public class MainMenu extends Application {
         vKMeal.setAlignment(Pos.CENTER);
         vKMeal.setSpacing(15);
 
-        //for the boys in my yard
+        //for the milkshake
         milkShakeView.setFitWidth(150);
         milkShakeView.setFitHeight(150);
         Button shakeBtn = new Button();

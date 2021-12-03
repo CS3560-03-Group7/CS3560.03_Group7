@@ -19,6 +19,7 @@ import javafx.geometry.Insets;
 import javafx.geometry.Pos;
 import javafx.scene.Scene;
 import javafx.scene.control.Button;
+import javafx.scene.control.CheckBox;
 import javafx.scene.control.ComboBox;
 import javafx.scene.control.Label;
 import javafx.scene.control.TableColumn;
@@ -51,6 +52,7 @@ public class UpdateMenu extends Application {
     int oldItemID;
     String photopath = "";
     SQLConnector s;
+    CheckBox sizes;
 
     public UpdateMenu(SQLConnector s){
         this.s = s;
@@ -169,9 +171,9 @@ public class UpdateMenu extends Application {
 
     public Scene addItem(Stage stage) {
         Label addItemLabel = new Label("ADD NEW ITEM");
-        addItemLabel.getStyleClass().add("label-Subtitle");
+        addItemLabel.getStyleClass().add("label-Items");
 
-        Label itemName = new Label("Item Name: ");
+        Label itemName = new Label("Item Name: ");        
         itemName.getStyleClass().add("label-Items");
         itemNameTF = new TextField();
         HBox itemNameHB = new HBox(itemName, itemNameTF);
@@ -182,10 +184,14 @@ public class UpdateMenu extends Application {
         comboBox.getItems().addAll("E", "S", "D", "C");
         HBox categoryHB = new HBox(category, comboBox);
         
-        Label hasSizesLabel = new Label("Has Sizes: ");
-        hasSizesLabel.getStyleClass().add("label-Items");
-        hasSizesTF = new TextField();
-        HBox hasSizesHB = new HBox(hasSizesLabel, hasSizesTF);
+        //Label hasSizesLabel = new Label("Has Sizes: ");
+        //hasSizesLabel.getStyleClass().add("label-Items");
+        //hasSizesTF = new TextField();
+        //HBox hasSizesHB = new HBox(hasSizesLabel, hasSizesTF);
+        sizes = new CheckBox("Has sizes?");
+        sizes.setIndeterminate(false);      
+        sizes.getStyleClass().add("label-Items");
+        HBox hasSizesHB = new HBox(sizes);
 
         Label isAvailLabel = new Label("Item Available: ");
         isAvailLabel.getStyleClass().add("label-Items");
@@ -208,12 +214,16 @@ public class UpdateMenu extends Application {
                     || isAvailTF.getText() != null || itemPriceTF.getText() != null) {
                 try {
                     conn = MySqlConnection();
+                    int sizeToTiny = 1;
+                    if(sizes.isSelected())
+                        sizeToTiny = 0;
 
                     ps = conn.prepareStatement("insert into item"
                             + "(itemName, category, hasSizes, isAvailable, price, picture) values (?, ?, ?, ?, ?, ?)");
                     ps.setString(1, itemNameTF.getText());
                     ps.setString(2, comboBox.getValue().toString());
-                    ps.setInt(3, Integer.parseInt(hasSizesTF.getText()));
+                    //ps.setInt(3, Integer.parseInt(hasSizesTF.getText()));
+                    ps.setInt(3, sizeToTiny);
                     ps.setInt(4, Integer.parseInt(isAvailTF.getText()));
                     ps.setDouble(5, Double.parseDouble(itemPriceTF.getText()));
                     ps.setString(6, itemPicTF.getText());
@@ -226,9 +236,10 @@ public class UpdateMenu extends Application {
                 } catch (SQLException ex) {
                     Logger.getLogger(UpdateMenu.class.getName()).log(Level.SEVERE, null, ex);
                 }
-                itemIdTF.setText("");
+                //itemIdTF.setText("");
                 itemNameTF.setText("");
-                hasSizesTF.setText("");
+                //hasSizesTF.setText("");
+                sizes.setSelected(false);
                 isAvailTF.setText("");
                 itemPriceTF.setText("");
                 itemPicTF.setText("");
@@ -266,6 +277,7 @@ public class UpdateMenu extends Application {
         addItemLabel.getStyleClass().add("label-Subtitle");
 
         Label itemIdLabel = new Label("Item ID: ");
+        itemIdLabel.getStyleClass().add("label-Items");
         itemIdTF = new TextField();
         itemIdTF.setEditable(false);
         itemIdTF.setDisable(true);
@@ -282,10 +294,14 @@ public class UpdateMenu extends Application {
         comboBox.getItems().addAll("E", "S", "D", "C");
         HBox categoryHB = new HBox(category, comboBox);
         
-        Label hasSizesLabel = new Label("Has Sizes: ");
-        hasSizesLabel.getStyleClass().add("label-Items");
-        hasSizesTF = new TextField();
-        HBox hasSizesHB = new HBox(hasSizesLabel, hasSizesTF);
+        //Label hasSizesLabel = new Label("Has Sizes: ");
+        //hasSizesLabel.getStyleClass().add("label-Items");
+        //hasSizesTF = new TextField();
+        //HBox hasSizesHB = new HBox(hasSizesLabel, hasSizesTF);
+        sizes = new CheckBox("Has sizes?");
+        sizes.setIndeterminate(false);    
+        sizes.getStyleClass().add("label-Items");
+        HBox hasSizesHB = new HBox(sizes);
 
         Label isAvailLabel = new Label("Item Available: ");
         isAvailLabel.getStyleClass().add("label-Items");
@@ -308,6 +324,9 @@ public class UpdateMenu extends Application {
                     || isAvailTF != null || itemPriceTF != null) {
                 try {
                     conn = MySqlConnection();
+                    int sizeToTiny = 1;
+                    if(sizes.isSelected())
+                        sizeToTiny = 0;
 
 
                     ps = conn.prepareStatement("update item set "
@@ -315,7 +334,8 @@ public class UpdateMenu extends Application {
                             + "price = ? where itemID = " + oldItemID);
                     ps.setString(1, itemNameTF.getText());
                     ps.setString(2,comboBox.getValue().toString());
-                    ps.setInt(3,Integer.parseInt(hasSizesTF.getText()));
+                    //ps.setInt(3,Integer.parseInt(hasSizesTF.getText()));
+                    ps.setInt(3,sizeToTiny);
                     ps.setInt(4,Integer.parseInt(isAvailTF.getText()));
                     ps.setDouble(5,Double.parseDouble(itemPriceTF.getText()));
 
@@ -349,6 +369,13 @@ public class UpdateMenu extends Application {
                     int res = ps.executeUpdate();
                     if (res >= 1) {
                         System.out.println("Item Successfully Deleted");
+                        itemIdTF.setText("");
+                        itemNameTF.setText("");
+                        //hasSizesTF.setText("");
+                        sizes.setSelected(false);
+                        isAvailTF.setText("");
+                        itemPriceTF.setText("");
+                        itemPicTF.setText("");
                     } else {
                         System.out.println("Item Failed to Delete");
                     }
@@ -388,10 +415,13 @@ public class UpdateMenu extends Application {
         itemIdTF.setText(Integer.toString(getProduct().get(index).getItemID()));
         itemNameTF.setText(getProduct().get(index).getItemName());
         comboBox.setValue(getProduct().get(index).getCategory());
-        hasSizesTF.setText(Integer.toString(getProduct().get(index).getHasSizes()));
+        //hasSizesTF.setText(Integer.toString(getProduct().get(index).getHasSizes()));
         isAvailTF.setText(Integer.toString(getProduct().get(index).getIsAvailable()));
         itemPriceTF.setText(Double.toString(getProduct().get(index).getPrice()));
         itemPicTF.setText(getProduct().get(index).getPictureID());
+              
+        if(getProduct().get(index).getHasSizes() == 0)
+            sizes.setSelected(true);
 
     }
 

@@ -1,9 +1,15 @@
 For this project to run in your IDE, you will need to change the following variables in their respective classes:
 
-MainMenu -- line 59; change filepath to the filepath where you've stored the images used in the program
+MainMenu -- line 57; change filepath to the filepath where you've stored the images used in the program
 
-Welcome -- line 95, 96, and 97; change url, username, and password to the correct url, username, and password for your local server instance
+Welcome -- line 41, 42, and 43; change url, username, and password to the correct url, username, and password for your local server instance
 
-UpdateMenu -- line 362, update url, username, and password
+UpdateMenu -- line 431; update url, username, and password for your local server instance
 
-Item -- line 33, update url, username, and password
+Item -- line 30, 31, and 32; update url, username, and password
+
+To enable CSS, change the filepath to the location of styles.css on your machine at these lines:
+Welcome.java -- Line 79
+MainMenu.java -- Line 273, 386
+Cart.java -- Line 316, 351
+UpdateMenu.java -- Line 168, 270, 410
